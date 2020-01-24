@@ -34,19 +34,16 @@ class MLX90640Sensor(AbstractIR):
     def __init__(self, i2c, threshold=20):
         super(MLX90640Sensor, self).__init__(threshold)
         self._sensor = MLX90640(i2c)
-        self._sensor.refresh_rate = RefreshRate.REFRESH_8_HZ
+        self._sensor.refresh_rate = RefreshRate.REFRESH_4_HZ
 
 
     def update(self):
         """Read the sensor and cache the pixel values"""
         frame = [0] * 768
-        for _ in range(10):
-            try:
-                self._sensor.getFrame(frame)
-                break
-            except ValueError:
-                # these happen, no biggie - retry
-                continue
+        try:
+            self._sensor.getFrame(frame)
+        except ValueError:                     # these happen, no biggie - retry
+            return
         data = []
         for h in range(24):
             index = h * 32

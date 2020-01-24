@@ -88,9 +88,9 @@ class Behaviour(StateMachine):
         return '<Behaviour: {0}>'.format(self._name)
 
 
-    def update(self):
+    def update(self, now):
         if self.active:
-            super(Behaviour, self).update()
+            super(Behaviour, self).update(now)
 
 
     # def event_occurred(self, event):

@@ -56,9 +56,9 @@ class RotateState(State):
         self._drive.pivot_right()
 
 
-    def update(self):
-        super(RotateState, self).update()
-        time_expired = time.monotonic() > self._started_rotating + self._rotate_time
+    def update(self, now):
+        super(RotateState, self).update(now)
+        time_expired = now > self._started_rotating + self._rotate_time
         if time_expired:
             self._machine.deactivate()
 

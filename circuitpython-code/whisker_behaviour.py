@@ -44,10 +44,6 @@ class IdleState(State):
         self._drive.stop()
 
 
-    # def exit(self, data=None):
-    #     super(IdleState, self).exit(data)
-
-
     def event_occurred(self, event, machine):
         super(IdleState, self).event_occurred(event, machine)
         if event['type'] == 'whisker' and event['what'] == 'fell':
@@ -75,9 +71,9 @@ class GoBackwardState(State):
         self._drive.go_backward()
 
 
-    def update(self):
-        super(GoBackwardState, self).update()
-        time_expired = time.monotonic() > self._started_reversing + self._backup_time
+    def update(self, now):
+        super(GoBackwardState, self).update(now)
+        time_expired = now > self._started_reversing + self._backup_time
         whiskers_clear = self._left_whisker.value and self._right_whisker.value
         if whiskers_clear:
             logger.debug('Whisters clear in %s', self)
@@ -107,9 +103,9 @@ class PivotState(State):
             self._drive.pivot_left()
 
 
-    def update(self):
-        super(PivotState, self).update()
-        if time.monotonic() > self._started_pivoting + self._pivot_time:
+    def update(self, now):
+        super(PivotState, self).update(now)
+        if now > self._started_pivoting + self._pivot_time:
             self._machine.deactivate()
 
 

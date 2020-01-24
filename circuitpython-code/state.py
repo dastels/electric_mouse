@@ -46,7 +46,7 @@ class State(object):
         pass
 
 
-    def update(self):
+    def update(self, now):
         pass
 
 

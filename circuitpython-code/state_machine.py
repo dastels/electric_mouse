@@ -68,10 +68,10 @@ class StateMachine(object):
             raise Exception('None state name')
 
 
-    def update(self):
+    def update(self, now):
         if self._state:
  #           logger.debug('Updating %s', self._state)
-            self._state.update()
+            self._state.update(now)
 
 
     def event_occurred(self, event):

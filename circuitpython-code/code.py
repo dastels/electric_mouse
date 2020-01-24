@@ -56,7 +56,6 @@ behaviours.add(WhiskerBehaviour(system))
 
 update_time = 0
 update_interval = 0.1
-ir_check_time = 0
 
 # Start it up
 
@@ -75,9 +74,7 @@ while True:
     now = time.monotonic()
     system.update(now)
 
-    if now >= update_time:
-        update_time = now + update_interval
-        behaviours.update()
+    behaviours.update(now)
 
     # Whiskers
     if left_whisker.fell:

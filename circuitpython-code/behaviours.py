@@ -48,10 +48,10 @@ class Behaviours(object):
         self._already_started = True
 
 
-    def update(self):
+    def update(self, now):
         self.start()
         for behaviour in self._behaviours:
-            behaviour.update()
+            behaviour.update(now)
             if behaviour.active:
                 return
 

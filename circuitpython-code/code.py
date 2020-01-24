@@ -57,6 +57,10 @@ behaviours.add(WhiskerBehaviour(system))
 update_time = 0
 update_interval = 0.1
 
+heartbeat_time = 0
+heartbeat_interval = 1.0
+
+
 # Start it up
 
 system.power_on()
@@ -75,6 +79,11 @@ while True:
     system.update(now)
 
     behaviours.update(now)
+
+    # Heartbeat
+    if now > heartbeat_time:
+        heartbeat_time = now + heartbeat_interval
+        behaviours.event_occurred({'type': 'heartbeat'})
 
     # Whiskers
     if left_whisker.fell:

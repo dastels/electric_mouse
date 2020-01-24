@@ -113,6 +113,7 @@ class AbstractIR(object):
         elif t < 33: return '%'
         elif t < 35: return '#'
         elif t < 37: return 'X'
+        # pylint: enable=multiple-statements
         return '&'
 
 
@@ -148,13 +149,6 @@ class AbstractIR(object):
         left_percent = self.percent_above(left_pixels)
         center_percent = self.percent_above(center_pixels)
         right_percent = self.percent_above(right_pixels)
-
-        print('left:')
-        print(self.hot_printstring(left_pixels))
-        print('center:')
-        print(self.hot_printstring(center_pixels))
-        print('right:')
-        print(self.hot_printstring(right_pixels))
 
         if left_percent > 10 and left_percent > center_percent and left_percent > right_percent:
             return -1

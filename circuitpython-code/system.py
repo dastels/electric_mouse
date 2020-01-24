@@ -41,7 +41,7 @@ logger.setLevel(logging.DEBUG)
 
 class System(object):
 
-    def __init__(self, drive, debounce_update_interval=0.01, ir_update_interval=0.1):
+    def __init__(self, drive, debounce_update_interval=0.01, ir_update_interval=0.25):
         i2c = busio.I2C(board.SCL, board.SDA)
 
         # Drive system

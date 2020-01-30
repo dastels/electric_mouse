@@ -142,6 +142,17 @@ class DriveSystem(AbstractDriveSystem):
         self._right_motor = DCMotor(PWMOut(board.D12), PWMOut(board.D13))
         self._left_motor = DCMotor(PWMOut(board.D4), PWMOut(board.D11))
 
+        self._base_speed = 0.5
+
+
+    @property
+    def base_speed(self):
+        return self._base_speed
+
+    @base_speed.setter
+    def base_speed(self, value):
+        self._base_speed = value
+
 
     def enable(self):
         self._motor_enable.value = True
@@ -159,38 +170,38 @@ class DriveSystem(AbstractDriveSystem):
 
     def go_forward(self):
         super(DriveSystem, self).go_forward()
-        self._left_motor.throttle = 0.5
-        self._right_motor.throttle = 0.5
+        self._left_motor.throttle = self._base_speed
+        self._right_motor.throttle = self._base_speed
 
 
     def go_backward(self):
         super(DriveSystem, self).go_backward()
-        self._left_motor.throttle = -0.5
-        self._right_motor.throttle = -0.5
+        self._left_motor.throttle = -self._base_speed
+        self._right_motor.throttle = -self._base_speed
 
 
     def pivot_left(self):
         super(DriveSystem, self).pivot_left()
-        self._left_motor.throttle = -0.5
-        self._right_motor.throttle = 0.5
+        self._left_motor.throttle = -0.5 * self._base_speed
+        self._right_motor.throttle = 0.5 * self._base_speed
 
 
     def pivot_right(self):
         super(DriveSystem, self).pivot_right()
-        self._left_motor.throttle = 0.5
-        self._right_motor.throttle = -0.5
+        self._left_motor.throttle = 0.5 * self._base_speed
+        self._right_motor.throttle = -0.5 * self._base_speed
 
 
     def veer_left(self):
         super(DriveSystem, self).veer_left()
-        self._left_motor.throttle = 0.5
-        self._right_motor.throttle = 1.0
+        self._left_motor.throttle = 0.5 * self._base_speed
+        self._right_motor.throttle = self._base_speed
 
 
     def veer_right(self):
         super(DriveSystem, self).veer_right()
-        self._left_motor.throttle = 1.0
-        self._right_motor.throttle = 0.5
+        self._left_motor.throttle = self._base_speed
+        self._right_motor.throttle = 0.5 * self._base_speed
 
 
 

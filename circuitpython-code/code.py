@@ -87,6 +87,7 @@ drive = system.drive
 left_whisker = system.left_whisker
 right_whisker = system.right_whisker
 
+drive.base_speed = settings.BASE_SPEED
 behaviours.start()
 
 # Main loop

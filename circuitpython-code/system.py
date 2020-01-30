@@ -78,6 +78,7 @@ class System(object):
         # self._ir = AMG8833Sensor(i2c)
         self._ir = MLX90640Sensor(i2c)
         self._hotspot_debouncer = Debouncer(lambda: self._ir.percent_above() > 10)
+        self._inyourface_debouncer = Debouncer(lambda: self._ir.percent_above() > 75)
 
         self._debounce_update_interval = debounce_update_interval
         self._ir_update_interval = ir_update_interval
@@ -91,6 +92,7 @@ class System(object):
         self._right_whisker.update()
         self._low_voltage.update()
         self._hotspot_debouncer.update()
+        self._inyourface_debouncer.update()
         if now > self._ir_update_time:
             self._ir_update_time = now + self._ir_update_interval
             self._ir.update()
@@ -125,6 +127,11 @@ class System(object):
     @property
     def hotspot(self):
         return self._hotspot_debouncer
+
+
+    @property
+    def in_your_face(self):
+        return self._inyourface_debouncer
 
 
     @property

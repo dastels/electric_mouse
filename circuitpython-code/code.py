@@ -114,6 +114,12 @@ while True:
     if right_whisker.rose:
         behaviours.event_occurred({'type': 'whisker', 'where': 'right', 'what': 'rose'})
 
+    # Something is in my face
+    if system.in_your_face.rose:
+        behaviours.event_occurred({'type': 'ir', 'where': 'in_your_face', 'what': 'present'})
+    elif system.in_your_face.fell:
+        behaviours.event_occurred({'type': 'ir', 'where': 'in_your_face', 'what': 'absent'})
+
     # Hot
     if system.hotspot.rose:
         behaviours.event_occurred({'type': 'ir', 'where': 'hotspot', 'what': 'present'})

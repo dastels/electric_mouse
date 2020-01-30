@@ -27,9 +27,11 @@ Wander about
 
 #pylint:disable=unused-argument
 
+import time
 from behaviour import Behaviour
 from state import State
 from drive import STOPPED, FORWARD
+from random import random
 
 import adafruit_logging as logging
 logger = logging.getLogger('mouse')
@@ -45,10 +47,13 @@ class IdleState(State):
         super(IdleState, self).event_occurred(event, machine)
         if event['type'] == 'heartbeat':
             self._machine.activate()
-            if random.random() < 0.5:
+            chance = random()
+            if chance < 0.25:
                 self.go_to('veer_left')
-            else:
+            elif chance < 0.5:
                 self.go_to('veer_right')
+            else:
+                self._machine.deactivate()
 
 
 class VeerLeftState(State):
@@ -59,9 +64,9 @@ class VeerLeftState(State):
         self._timeout = 0
 
 
-    def enter(self, data):
+    def enter(self, data=None):
         super(VeerLeftState, self).enter(data)
-        self._timeout = time.monotonic() + (random.random() * 0.25)
+        self._timeout = time.monotonic() + (random() * 0.25)
         if self._drive.state == FORWARD:
             self._drive.veer_left()
         elif self._drive.state == STOPPED:
@@ -69,7 +74,7 @@ class VeerLeftState(State):
 
 
     def update(self, now):
-        if now > self.timeout:
+        if now > self._timeout:
             self._machine.deactivate()
 
 
@@ -83,7 +88,7 @@ class VeerRightState(State):
 
     def enter(self, data=None):
         super(VeerRightState, self).enter(data)
-        self._timeout = time.monotonic() + (random.random() * 0.25)
+        self._timeout = time.monotonic() + (random() * 0.25)
         if self._drive.state == FORWARD:
             self._drive.veer_right()
         elif self._drive.state == STOPPED:
@@ -91,14 +96,14 @@ class VeerRightState(State):
 
 
     def update(self, now):
-        if now > self.timeout:
+        if now > self._timeout:
             self._machine.deactivate()
 
 
 class WanderBehaviour(Behaviour):
 
     def __init__(self, system):
-        super(WanderBehaviour, self).__init__(system, 'chase')
+        super(WanderBehaviour, self).__init__(system, 'wander')
         self.add_state(IdleState(self))
         self.add_state(VeerLeftState(self))
         self.add_state(VeerRightState(self))

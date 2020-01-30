@@ -34,10 +34,24 @@ With encoders on the motors we could be more precise. Maybe in build 2.
 import time
 from behaviour import Behaviour
 from state import State
-from drive import STOPPED, FORWARD, REVERSE, PIVOT_LEFT, PIVOT_RIGHT, VEER_LEFT, VEER_RIGHT
 
 import adafruit_logging as logging
 logger = logging.getLogger('mouse')
+
+
+
+class IdleState(State):
+
+    def __init__(self, machine):
+        super(IdleState, self).__init__(machine, 'idle')
+
+
+    def event_occurred(self, event, machine):
+        super(IdleState, self).event_occurred(event, machine)
+        if event['type'] == 'ir' and event['where'] == 'in_your_face' and event['what'] == 'present':
+            self._machine.activate()
+            self.go_to('rotate')
+
 
 
 class RotateState(State):
@@ -68,5 +82,7 @@ class RunAwayBehaviour(Behaviour):
 
     def __init__(self, system, rotate_time=0.25):
         super(RunAwayBehaviour, self).__init__(system, 'runaway')
+        self.add_state(IdleState(self))
         self.add_state(RotateState(self, rotate_time))
-        self._initial_state = 'rotate'
+        self._initial_state = 'idle'
+        self.reset()

@@ -34,7 +34,9 @@ from system import System
 from behaviours import Behaviours
 from forward_behaviour import ForwardBehaviour
 # from whisker_behaviour import WhiskerBehaviour
-from chase_behaviour import ChaseBehaviour
+# from chase_behaviour import ChaseBehaviour
+# from run_away_behaviour import RunAwayBehaviour
+from wander_behaviour import WanderBehaviour
 import drive
 
 import adafruit_logging as logging
@@ -59,12 +61,15 @@ except OSError as e:
     print(e)
     print('Logging to serial')
 
+
 # Setup behaviours
 
 behaviours = Behaviours()
 behaviours.add(ForwardBehaviour(system))
-behaviours.add(ChaseBehaviour(system))
-behaviours.add(WhiskerBehaviour(system))
+behaviours.add(WanderBehaviour(system))
+# behaviours.add(ChaseBehaviour(system))
+# behaviours.add(RunAwayBehaviour(system))
+# behaviours.add(WhiskerBehaviour(system))
 
 # Timing control
 

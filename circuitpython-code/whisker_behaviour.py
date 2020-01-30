@@ -112,7 +112,7 @@ class PivotState(State):
 
 class WhiskerBehaviour(Behaviour):
 
-    def __init__(self, system, backup_time=0.25, pivot_time=0.25):
+    def __init__(self, system, backup_time=0.15, pivot_time=0.1):
         super(WhiskerBehaviour, self).__init__(system, 'whisker')
         self.add_state(IdleState(self))
         self.add_state(GoBackwardState(self, backup_time))

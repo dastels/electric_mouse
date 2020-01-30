@@ -31,7 +31,7 @@ from digitalio import DigitalInOut, Direction
 import audioio
 import busio
 import adafruit_lis3dh
-from amg8833 import AMG8833Sensor
+#from amg8833 import AMG8833Sensor
 from mlx90640 import MLX90640Sensor
 import adafruit_logging as logging
 from adafruit_debouncer import Debouncer
@@ -94,7 +94,7 @@ class System(object):
         if now > self._ir_update_time:
             self._ir_update_time = now + self._ir_update_interval
             self._ir.update()
-            #print(self._ir.hot_printstring())
+            # print(self._ir.hot_printstring())
 
 
     def power_off(self):

@@ -82,7 +82,6 @@ heartbeat_interval = 1.0
 
 # Start it up
 
-system.power_on()
 ir = system.ir
 drive = system.drive
 left_whisker = system.left_whisker

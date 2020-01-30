@@ -29,7 +29,6 @@ DEBUG = True
 
 # imports
 import time
-import adafruit_logging as logging
 from system import System
 from behaviours import Behaviours
 from forward_behaviour import ForwardBehaviour
@@ -37,6 +36,7 @@ from whisker_behaviour import WhiskerBehaviour
 from chase_behaviour import ChaseBehaviour
 import drive
 
+import adafruit_logging as logging
 logger = logging.getLogger('mouse')
 
 logger.setLevel(logging.INFO)
@@ -44,6 +44,18 @@ logger.setLevel(logging.INFO)
 
 system = System(drive.make_drive(DEBUG))
 system.ir.threshold = 25
+
+# Setup logging to file if possible
+try:
+    with open(settings.LOG_FILE, 'w') as fp:     # first, get rid of any previous log
+        fp.write('Log\r\n')
+    system.indicate(colours.RED)
+    import file_handler
+    logger.addHandler(file_handler.FileHandler(settings.LOG_FILE))
+except OSError as e:
+    system.indicate(colours.GREEN)
+    print(e)
+    print('Logging to serial')
 
 # Setup behaviours
 

@@ -35,6 +35,7 @@ from amg8833 import AMG8833Sensor
 from mlx90640 import MLX90640Sensor
 import adafruit_logging as logging
 from adafruit_debouncer import Debouncer
+import neopixel
 
 logger = logging.getLogger('mouse')
 logger.setLevel(logging.DEBUG)
@@ -69,6 +70,9 @@ class System(object):
         self._accel = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
         self._accel.range = adafruit_lis3dh.RANGE_4_G
         self._accel.set_tap(1, 100)
+
+        # Neopixels
+        self._indicator = neopixel.NeoPixel(board.D5, 1, brightness=0.3, auto_write=True)
 
         # IR sensor
         # self._ir = AMG8833Sensor(i2c)
@@ -141,3 +145,6 @@ class System(object):
     @property
     def accel(self):
         return self._accel
+
+    def indicate(self, colour):
+        self._indicator[0] = colour

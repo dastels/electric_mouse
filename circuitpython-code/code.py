@@ -24,26 +24,28 @@ THE SOFTWARE.
 --------------------------------------------------------------------------------
 Main electric mouse code
 """
-DEBUG = True
 
+import settings
+import colours
 
 # imports
 import time
 from system import System
 from behaviours import Behaviours
 from forward_behaviour import ForwardBehaviour
-from whisker_behaviour import WhiskerBehaviour
+# from whisker_behaviour import WhiskerBehaviour
 from chase_behaviour import ChaseBehaviour
 import drive
 
 import adafruit_logging as logging
 logger = logging.getLogger('mouse')
 
-logger.setLevel(logging.INFO)
+logger.setLevel(settings.LOGGING_LEVEL)
 
 
-system = System(drive.make_drive(DEBUG))
+system = System(drive.make_drive(settings.DEBUG))
 system.ir.threshold = 25
+system.power_on()
 
 # Setup logging to file if possible
 try:

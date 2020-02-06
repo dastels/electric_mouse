@@ -1,0 +1,46 @@
+clang
+
+%c -std=c11
+%cpp -std=c++11
+
+-I/home/dastels/Projects/Personal/electric_mouse/c++-code/include
+-I/home/dastels/Projects/Personal/electric_mouse/c++-code/src
+-I/home/dastels/.platformio/packages/framework-arduinosam/cores/adafruit
+-I/home/dastels/.platformio/packages/framework-arduinosam/system/samd/CMSIS/CMSIS/Include
+-I/home/dastels/.platformio/packages/framework-arduinosam/system/samd/CMSIS-Atmel/CMSIS/Device/ATMEL
+-I/home/dastels/.platformio/packages/framework-arduinosam/cores/adafruit/Adafruit_TinyUSB_Core
+-I/home/dastels/.platformio/packages/framework-arduinosam/cores/adafruit/Adafruit_TinyUSB_Core/tinyusb/src
+-I/home/dastels/.platformio/packages/framework-arduinosam/variants/feather_m4
+-I/home/dastels/.platformio/packages/framework-arduinosam/libraries/__cores__/adafruit/Adafruit_ZeroDMA
+-I/home/dastels/.platformio/packages/framework-arduinosam/libraries/__cores__/adafruit/Adafruit_ZeroDMA/utility
+-I/home/dastels/.platformio/packages/framework-arduinosam/libraries/__cores__/adafruit/HID
+-I/home/dastels/.platformio/packages/framework-arduinosam/libraries/__cores__/adafruit/I2S/src
+-I/home/dastels/.platformio/packages/framework-arduinosam/libraries/__cores__/adafruit/SAMD_AnalogCorrection/src
+-I/home/dastels/.platformio/packages/framework-arduinosam/libraries/__cores__/adafruit/SDU/src
+-I/home/dastels/.platformio/packages/framework-arduinosam/libraries/__cores__/adafruit/SPI
+-I/home/dastels/.platformio/packages/framework-arduinosam/libraries/__cores__/adafruit/USBHost/src
+-I/home/dastels/.platformio/packages/framework-arduinosam/libraries/__cores__/adafruit/Wire
+-I/home/dastels/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include
+-I/home/dastels/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include/c++/7.2.1
+-I/home/dastels/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include/c++/7.2.1/arm-none-eabi
+-I/home/dastels/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/arm-none-eabi/7.2.1/include-fixed
+-I/home/dastels/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/arm-none-eabi/7.2.1/include
+-I/home/dastels/.platformio/packages/tool-unity
+
+-DPLATFORMIO=40100
+-DARDUINO_ARCH_SAMD
+-DARDUINO_FEATHER_M4
+-DADAFRUIT_FEATHER_M4_EXPRESS
+-D__SAMD51J19A__
+-D__SAMD51__
+-D__FPU_PRESENT
+-DARM_MATH_CM4
+-DENABLE_CACHE
+-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+-DF_CPU=120000000L
+-DUSBCON
+-DARDUINO=10805
+-DUSB_VID=0x239A
+-DUSB_PID=0x8031
+-DUSB_PRODUCT=&quot;Adafruit Feather M4&quot;
+-DUSB_MANUFACTURER=&quot;Adafruit&quot;

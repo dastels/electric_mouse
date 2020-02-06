@@ -25,7 +25,7 @@ THE SOFTWARE.
 Main electric mouse code
 """
 
-import settings
+import config
 import colours
 
 # imports
@@ -33,7 +33,7 @@ import time
 from system import System
 from behaviours import Behaviours
 from forward_behaviour import ForwardBehaviour
-# from whisker_behaviour import WhiskerBehaviour
+from whisker_behaviour import WhiskerBehaviour
 # from chase_behaviour import ChaseBehaviour
 # from run_away_behaviour import RunAwayBehaviour
 from wander_behaviour import WanderBehaviour
@@ -42,24 +42,31 @@ import drive
 import adafruit_logging as logging
 logger = logging.getLogger('mouse')
 
-logger.setLevel(settings.LOGGING_LEVEL)
+logger.setLevel(config.LOGGING_LEVEL)
 
 
-system = System(drive.make_drive(settings.DEBUG))
+# Figure out if we're autonomous
+autonomous = False
+try:
+    with open(config.LOG_FILE, 'w') as fp:     # first, get rid of any previous log
+        fp.write('Log\r\n')
+    autonomous = True
+except OSError as e:
+    pass
+
+
+# fake drive system if config.DEBUG is set and we're teathered.
+system = System(drive.make_drive(config.DEBUG and not autonomous))
 system.ir.threshold = 25
 system.power_on()
 
-# Setup logging to file if possible
-try:
-    with open(settings.LOG_FILE, 'w') as fp:     # first, get rid of any previous log
-        fp.write('Log\r\n')
+#set the indicator and log to a file
+if autonomous:
     system.indicate(colours.RED)
     import file_handler
-    logger.addHandler(file_handler.FileHandler(settings.LOG_FILE))
-except OSError as e:
+    logger.addHandler(file_handler.FileHandler(config.LOG_FILE))
+else:
     system.indicate(colours.GREEN)
-    print(e)
-    print('Logging to serial')
 
 
 # Setup behaviours
@@ -69,7 +76,7 @@ behaviours.add(ForwardBehaviour(system))
 behaviours.add(WanderBehaviour(system))
 # behaviours.add(ChaseBehaviour(system))
 # behaviours.add(RunAwayBehaviour(system))
-# behaviours.add(WhiskerBehaviour(system))
+behaviours.add(WhiskerBehaviour(system))
 
 # Timing control
 
@@ -87,14 +94,16 @@ drive = system.drive
 left_whisker = system.left_whisker
 right_whisker = system.right_whisker
 
-drive.base_speed = settings.BASE_SPEED
+drive.base_speed = config.BASE_SPEED
 behaviours.start()
 
 # Main loop
-
+last = 0
 while True:
     # update things
     now = time.monotonic()
+    logger.debug('Update duration: %f', now - last)
+    last = now
     system.update(now)
 
     behaviours.update(now)
@@ -114,24 +123,24 @@ while True:
     if right_whisker.rose:
         behaviours.event_occurred({'type': 'whisker', 'where': 'right', 'what': 'rose'})
 
-    # Something is in my face
-    if system.in_your_face.rose:
-        behaviours.event_occurred({'type': 'ir', 'where': 'in_your_face', 'what': 'present'})
-    elif system.in_your_face.fell:
-        behaviours.event_occurred({'type': 'ir', 'where': 'in_your_face', 'what': 'absent'})
+    # # Something is in my face
+    # if system.in_your_face.rose:
+    #     behaviours.event_occurred({'type': 'ir', 'where': 'in_your_face', 'what': 'present'})
+    # elif system.in_your_face.fell:
+    #     behaviours.event_occurred({'type': 'ir', 'where': 'in_your_face', 'what': 'absent'})
 
-    # Hot
-    if system.hotspot.rose:
-        behaviours.event_occurred({'type': 'ir', 'where': 'hotspot', 'what': 'present'})
-    elif system.hotspot.fell:
-        behaviours.event_occurred({'type': 'ir', 'where': 'hotspot', 'what': 'absent'})
+    # # Hot
+    # if system.hotspot.rose:
+    #     behaviours.event_occurred({'type': 'ir', 'where': 'hotspot', 'what': 'present'})
+    # elif system.hotspot.fell:
+    #     behaviours.event_occurred({'type': 'ir', 'where': 'hotspot', 'what': 'absent'})
 
-    focus = ir.focus
-    if focus == -1:
-        behaviours.event_occurred({'type': 'ir', 'what': 'focus', 'where': 'left'})
-    elif focus == 0:
-        behaviours.event_occurred({'type': 'ir', 'what': 'focus', 'where': 'center'})
-    elif focus == 1:
-        behaviours.event_occurred({'type': 'ir', 'what': 'focus', 'where': 'right'})
-    else:
-        behaviours.event_occurred({'type': 'ir', 'what': 'focus', 'where': 'none'})
+    # focus = ir.focus
+    # if focus == -1:
+    #     behaviours.event_occurred({'type': 'ir', 'what': 'focus', 'where': 'left'})
+    # elif focus == 0:
+    #     behaviours.event_occurred({'type': 'ir', 'what': 'focus', 'where': 'center'})
+    # elif focus == 1:
+    #     behaviours.event_occurred({'type': 'ir', 'what': 'focus', 'where': 'right'})
+    # else:
+    #     behaviours.event_occurred({'type': 'ir', 'what': 'focus', 'where': 'none'})

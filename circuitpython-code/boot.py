@@ -6,5 +6,6 @@ switch = digitalio.DigitalInOut(board.D9)
 switch.direction = digitalio.Direction.INPUT
 switch.pull = digitalio.Pull.UP
 
-# If the switch is presses CircuitPython can write to the drive
+print('D9: {0}'.format(switch.value))
+# If the switch is pressed CircuitPython can write to the drive
 storage.remount('/', switch.value)

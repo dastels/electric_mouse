@@ -35,8 +35,7 @@ class GoForwardState(State):
         super(GoForwardState, self).__init__(machine, 'forward')
 
     def update(self, now):
-        if not self._drive.state == FORWARD:
-            self._drive.go_forward()
+        self._drive.go_forward()
 
 
 class ForwardBehaviour(Behaviour):

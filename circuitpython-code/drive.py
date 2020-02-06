@@ -194,14 +194,14 @@ class DriveSystem(AbstractDriveSystem):
 
     def veer_left(self):
         super(DriveSystem, self).veer_left()
-        self._left_motor.throttle = 0.5 * self._base_speed
+        self._left_motor.throttle = 0.1 * self._base_speed
         self._right_motor.throttle = self._base_speed
 
 
     def veer_right(self):
         super(DriveSystem, self).veer_right()
         self._left_motor.throttle = self._base_speed
-        self._right_motor.throttle = 0.5 * self._base_speed
+        self._right_motor.throttle = 0.1 * self._base_speed
 
 
 

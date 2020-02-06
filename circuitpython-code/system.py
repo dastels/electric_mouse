@@ -71,6 +71,8 @@ class System(object):
         self._accel.range = adafruit_lis3dh.RANGE_4_G
         self._accel.set_tap(1, 100)
 
+        self._propwing_power.value = True
+
         # Neopixels
         self._indicator = neopixel.NeoPixel(board.D5, 1, brightness=0.3, auto_write=True)
 

@@ -49,10 +49,13 @@ class IdleState(State):
             self._machine.activate()
             chance = random()
             if chance < 0.25:
+                logger.debug('%s: Veering left (%f %%)', machine, chance)
                 self.go_to('veer_left')
             elif chance < 0.5:
+                logger.debug('%s: Veering right (%f %%)', machine, chance)
                 self.go_to('veer_right')
             else:
+                logger.debug('%s: Ignoring (%f %%)', machine, chance)
                 self._machine.deactivate()
 
 
@@ -66,7 +69,9 @@ class VeerLeftState(State):
 
     def enter(self, data=None):
         super(VeerLeftState, self).enter(data)
-        self._timeout = time.monotonic() + (random() * 0.25)
+        duration = random() * 0.10
+        logger.info('%s: Duration (%f %%)', self._machine, duration)
+        self._timeout = time.monotonic() + duration
         if self._drive.state == FORWARD:
             self._drive.veer_left()
         elif self._drive.state == STOPPED:
@@ -88,7 +93,9 @@ class VeerRightState(State):
 
     def enter(self, data=None):
         super(VeerRightState, self).enter(data)
-        self._timeout = time.monotonic() + (random() * 0.25)
+        duration = random() * 0.10
+        logger.info('%s: Duration (%f %%)', self._machine, duration)
+        self._timeout = time.monotonic() + duration
         if self._drive.state == FORWARD:
             self._drive.veer_right()
         elif self._drive.state == STOPPED:

@@ -4,10 +4,10 @@
 
 #include "behaviour.h"
 
-Behaviour::Behaviour(System &system, String16 &name)
+Behaviour::Behaviour(System *system, const char *name)
   : StateMachine(system, name)
-  , _status(INACTIVE)
-  , _previous_status(NONE)
+  , _status(BehaviourStatus::INACTIVE)
+  , _previous_status(BehaviourStatus::NONE)
 {
 }
 
@@ -23,7 +23,7 @@ void Behaviour::activate()
   if (_subsumed_behaviour) {
     _subsumed_behaviour->surpress();
   }
-  _status = ACTIVE;
+  _status = BehaviourStatus::ACTIVE;
   reset();
 }
 
@@ -33,7 +33,7 @@ void Behaviour::deactivate()
   if (_subsumed_behaviour) {
     _subsumed_behaviour->unsurpress();
   }
-  _status = INACTIVE;
+  _status = BehaviourStatus::INACTIVE;
   reset();
 }
 
@@ -41,7 +41,7 @@ void Behaviour::deactivate()
 void Behaviour::surpress()
 {
   _previous_status = _status;
-  _status = SURPRESSED;
+  _status = BehaviourStatus::SURPRESSED;
   if (_subsumed_behaviour) {
     _subsumed_behaviour->surpress();
   }
@@ -51,7 +51,7 @@ void Behaviour::surpress()
 void Behaviour::unsurpress()
 {
   _status = _previous_status;
-  if (_subsumed_behaviour && _status != ACTIVE) {
+  if (_subsumed_behaviour && _status != BehaviourStatus::ACTIVE) {
     _subsumed_behaviour->unsurpress();
   }
 }
@@ -59,7 +59,7 @@ void Behaviour::unsurpress()
 
 bool Behaviour::active()
 {
-  return _status == ACTIVE;
+  return _status == BehaviourStatus::ACTIVE;
 }
 
 

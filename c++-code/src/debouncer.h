@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Digital debouncer
 //
 // Copyright (c) 2020 Dave Astels
@@ -23,13 +24,13 @@ class Debouncer
   unsigned long durationOfPreviousState;
 
   inline void changeState();
-  inline void setStateFlag(const uint8_t flag)    {state |= flag;}
-  inline void unsetStateFlag(const uint8_t flag)  {state &= ~flag;}
-  inline void toggleStateFlag(const uint8_t flag) {state ^= flag;}
-  inline bool getStateFlag(const uint8_t flag)    {return((state & flag) != 0);}
+  inline void setStateFlag(const uint8_t flag)    { state |= flag; }
+  inline void unsetStateFlag(const uint8_t flag)  { state &= ~flag; }
+  inline void toggleStateFlag(const uint8_t flag) { state ^= flag; }
+  inline bool getStateFlag(const uint8_t flag)    { return((state & flag) != 0); }
 
  public:
-  Debouncer(Debouncable &db, uint16_t interval_time);
+  Debouncer(Debouncable *db, uint16_t interval_time=10);
   bool changed( ) { return getStateFlag(CHANGED_STATE); }
   bool update();
   bool read();

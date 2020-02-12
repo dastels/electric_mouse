@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Event class
 //
 // Copyright (c) 2020 Dave Astels

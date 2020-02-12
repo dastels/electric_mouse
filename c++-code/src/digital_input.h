@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Digital input pin
 //
 // Copyright (c) 2020 Dave Astels
@@ -7,7 +8,7 @@
 
 #include "debouncable.h"
 
-typedef enum {NONE, UP, DOWN} Pull;
+enum class Pull {NONE, UP, DOWN};
 
 class DigitalInput: public Debouncable
 {
@@ -15,7 +16,7 @@ class DigitalInput: public Debouncable
   int _mode;
 
  public:
-  DigitalInput(int pin, Pull pull=UP);
+  DigitalInput(int pin, Pull pull=Pull::UP);
   bool value();
 };
 

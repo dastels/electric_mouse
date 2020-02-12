@@ -2,25 +2,22 @@
 //
 // Copyright (c) 2020 Dave Astels
 
+#include <string.h>
 #include "state_machine.h"
 
-StateMachine::StateMachine(System &system, String16 &name)
-  : _system(&system)
+StateMachine::StateMachine(System *system, const char *name)
+  : _system(system)
   , _name(name)
+  , _number_of_states(0)
 {
 }
 
 
-StateMachine::~StateMachine()
+bool StateMachine::add_state(State *state)
 {
-  _states.clear();
-}
-
-
-bool StateMachine::add_state(State &state)
-{
-  if (_states.full()) return false;
-  _states.insert(etl::pair<String16, State>(state.name(), state));
+  if (_number_of_states == MAX_STATES) return false;
+  _state_names[_number_of_states] = state->name();
+  _states[_number_of_states++] = state;
   return true;
 }
 
@@ -31,18 +28,28 @@ void StateMachine::reset()
 }
 
 
-bool StateMachine::go_to_state(String16 &state_name, void *data)
+State *StateMachine::find_state(const char *state_name)
 {
-  if (state_name.empty()) return false;
-  try {
-    State &new_state = _states.at(state_name);
-    _current_state->exit();
-    _current_state = &new_state;
-    _current_state->enter(data);
-    return true;
-  } catch (etl::map_out_of_bounds) {
-    return false;
+  for (int index = 0; index < _number_of_states; index++) {
+    if (strcmp(state_name, _state_names[index]) == 0) {
+      return _states[index];
+    }
   }
+  return nullptr;
+}
+
+
+bool StateMachine::go_to_state(const char *state_name, void *data)
+{
+  if (!state_name || !*state_name) return false; // no state name
+  State *new_state = find_state(state_name);
+  if (new_state == nullptr) return false; // bad state name
+  if (_current_state) {
+    _current_state->exit();
+  }
+  _current_state = new_state;
+  _current_state->enter(data);
+  return true;
 }
 
 
@@ -62,23 +69,11 @@ void StateMachine::event_occurred(Event &event)
 }
 
 
-String16 StateMachine::current_state_name()
+const char *StateMachine::current_state_name()
 {
   if (_current_state) {
     return _current_state->name();
   } else {
     return "NOT_SET";
   }
-}
-
-
-String16 StateMachine::name()
-{
-  return _name;
-}
-
-
-System *StateMachine::system()
-{
-  return _system;
 }

@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Digital output pin
 //
 // Copyright (c) 2020 Dave Astels

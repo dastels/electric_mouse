@@ -3,29 +3,28 @@
 // Copyright (c) 2020 Dave Astels
 
 #include <Arduino.h>
-#include "drive.h"
+#include "system.h"
+#include "behaviours.h"
+#include "behaviour_go_forward.h"
 
-RealDrive motors;
+System *the_system;
+Behaviours *behaviours;
+
+bool led = true;
 
 void setup()
 {
-  motors.enable();
+  the_system = new System(false);
+  behaviours = new Behaviours(the_system);
+  behaviours->add(new BehaviourGoForward(the_system));
+  the_system->power_on();
+  behaviours->start();
 }
 
 void loop()
 {
-  for (int i = 50; i < 256; i += 10) {
-    motors.forward(i);
-    delay(250);
-  }
-  for (int i = 255; i > 50; i -= 10) {
-    motors.forward(i);
-    delay(250);
-  }
-
-  for (int i = 50; i < 256; i += 10) {
-    motors.pivot_left(i);
-    delay(250);
-  }
-
+  led = !led;
+  the_system->update(0);
+  behaviours->update(0);
+  delay(1000);
 }

@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Motor interface
 //
 // Copyright (c) 2020 Dave Astels
@@ -8,6 +9,7 @@
 #include "digital_output.h"
 #include "motor.h"
 
+class System;
 
 typedef enum {STOPPED, FORWARD, REVERSE, PIVOT_LEFT, PIVOT_RIGHT, VEER_LEFT, VEER_RIGHT} DriveState;
 
@@ -16,20 +18,23 @@ typedef enum {STOPPED, FORWARD, REVERSE, PIVOT_LEFT, PIVOT_RIGHT, VEER_LEFT, VEE
 
 class Drive
 {
+protected:
   DriveState _state;
+  System *_system;
 
- public:
-  Drive();
+public:
+  static Drive *make_drive(bool debug_mode, System *sys);
+  Drive(System *sys);
   DriveState state() { return _state; }
-  virtual void enable() {}
-  virtual void disable() {}
-  virtual void stop() { _state = STOPPED; }
-  virtual void forward(int pwm=255) { _state = FORWARD; }
-  virtual void reverse(int pwm=255) { _state = REVERSE; }
-  virtual void pivot_left(int pwm=128) { _state = PIVOT_LEFT; }
-  virtual void pivot_right(int pwm=128) { _state = PIVOT_RIGHT; }
-  virtual void veer_left() { _state = VEER_LEFT; }
-  virtual void veer_right() { _state = VEER_RIGHT; }
+  virtual void enable() = 0;
+  virtual void disable() = 0;
+  virtual void stop();
+  virtual void forward(int pwm=255);
+  virtual void reverse(int pwm=255);
+  virtual void pivot_left(int pwm=128);
+  virtual void pivot_right(int pwm=128);
+  virtual void veer_left();
+  virtual void veer_right();
 };
 
 // -----------------------------------------------------------------------------
@@ -38,14 +43,16 @@ class Drive
 class FakeDrive: public Drive
 {
 public:
-  FakeDrive();
-  virtual void stop();
-  virtual void forward(int pwm=255);
-  virtual void reverse(int pwm=255);
-  virtual void pivot_left(int pwm=128);
-  virtual void pivot_right(int pwm=128);
-  virtual void veer_left();
-  virtual void veer_right();
+  FakeDrive(System *sys);
+  void enable();
+  void disable();
+  void stop();
+  void forward(int pwm=255);
+  void reverse(int pwm=255);
+  void pivot_left(int pwm=128);
+  void pivot_right(int pwm=128);
+  void veer_left();
+  void veer_right();
 };
 
 
@@ -54,21 +61,21 @@ public:
 
 class RealDrive: public Drive
 {
-  DigitalOutput motor_enable;
-  Motor left;
-  Motor right;
+  DigitalOutput *_motor_enable;
+  Motor *_left;
+  Motor *_right;
 
 public:
-  RealDrive();
-  virtual void enable();
-  virtual void disable();
-  virtual void stop();
-  virtual void forward(int pwm=255);
-  virtual void reverse(int pwm=255);
-  virtual void pivot_left(int pwm=128);
-  virtual void pivot_right(int pwm=128);
-  virtual void veer_left();
-  virtual void veer_right();
+  RealDrive(System *sys);
+  void enable();
+  void disable();
+  void stop();
+  void forward(int pwm=255);
+  void reverse(int pwm=255);
+  void pivot_left(int pwm=128);
+  void pivot_right(int pwm=128);
+  void veer_left();
+  void veer_right();
 };
 
 #endif

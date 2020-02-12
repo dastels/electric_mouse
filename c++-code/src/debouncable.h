@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Abstract debouncable base class
 //
 // Copyright (c) 2020 Dave Astels

@@ -4,23 +4,91 @@
 
 #include <Arduino.h>
 #include "drive.h"
+#include "system.h"
+
 
 
 // -----------------------------------------------------------------------------
 // Abstract base
 
-Drive::Drive(): _state(STOPPED)
+Drive::Drive(System *sys)
+  : _state(STOPPED)
+  , _system(sys)
 {
+}
+
+
+Drive *Drive::make_drive(bool debug_mode, System *sys)
+{
+  if (debug_mode) {
+    return new FakeDrive(sys);
+  } else {
+    return new RealDrive(sys);
+  }
+}
+
+
+void Drive::stop()
+{
+  _state = STOPPED;
+}
+
+
+void Drive::forward(int pwm)
+{
+  _state = FORWARD;
+}
+
+
+void Drive::reverse(int pwm)
+{
+  _state = REVERSE;
+}
+
+
+void Drive::pivot_left(int pwm)
+{
+  _state = PIVOT_LEFT;
+}
+
+
+void Drive::pivot_right(int pwm)
+{
+  _state = PIVOT_RIGHT;
+}
+
+
+void Drive::veer_left()
+{
+  _state = VEER_LEFT;
+}
+
+
+void Drive::veer_right()
+{
+  _state = VEER_RIGHT;
 }
 
 
 // -----------------------------------------------------------------------------
 // Fake implementation for desk debugging
 
-FakeDrive::FakeDrive()
+FakeDrive::FakeDrive(System *sys)
+  :Drive(sys)
 {
-  Drive();
 }
+
+
+void FakeDrive::enable()
+{
+}
+
+
+void FakeDrive::disable()
+{
+}
+
+
 
 
 void FakeDrive::stop()
@@ -32,6 +100,7 @@ void FakeDrive::stop()
 void FakeDrive::forward(int pwm)
 {
   Drive::forward(pwm);
+
 }
 
 
@@ -68,78 +137,78 @@ void FakeDrive::veer_right()
 // -----------------------------------------------------------------------------
 // Real implementation using the motors
 
-RealDrive::RealDrive()
-  : motor_enable(DigitalOutput(A2))
-  , left(Motor(13, 12))
-  , right(Motor(11, 4))
+RealDrive::RealDrive(System *sys)
+  : Drive(sys)
+  , _motor_enable(new DigitalOutput(16))
+  , _left(new Motor(13, 12))
+  , _right(new Motor(11, 4))
 
 {
-  Drive();
 }
 
 void RealDrive::enable()
 {
-  motor_enable.write(true);
+  _motor_enable->set();
 }
 
 
 void RealDrive::disable()
 {
-  motor_enable.write(false);
+  _motor_enable->clear();
 }
 
 
 void RealDrive::stop()
 {
   Drive::stop();
-  left.throttle(0);
-  right.throttle(0);
+  _left->throttle(0);
+  _right->throttle(0);
 }
 
 
 void RealDrive::forward(int pwm)
 {
   Drive::forward(pwm);
-  left.throttle(pwm);
-  right.throttle(pwm);
+  _left->throttle(pwm);
+  _right->throttle(pwm);
 }
 
 
 void RealDrive::reverse(int pwm)
 {
   Drive::reverse(pwm);
-  left.throttle(-pwm);
-  right.throttle(-pwm);
+  _left->throttle(-pwm);
+  _right->throttle(-pwm);
 }
 
 
 void RealDrive::pivot_left(int pwm)
 {
   Drive::pivot_left(pwm);
-  left.throttle(-pwm);
-  right.throttle(pwm);
+  _left->throttle(-pwm);
+  _right->throttle(pwm);
 }
 
 
 void RealDrive::pivot_right(int pwm)
 {
   Drive::pivot_right(pwm);
-  left.throttle(pwm);
-  right.throttle(-pwm);
+  _left->throttle(pwm);
+  _right->throttle(-pwm);
 }
 
 
 void RealDrive::veer_left()
 {
   Drive::veer_left();
-  left.throttle(128);
-  right.throttle(255);
+  _left->throttle(128);
+  _right->throttle(255);
 }
 
 
 void RealDrive::veer_right()
 {
   Drive::veer_right();
-  left.throttle(255);
-  right.throttle(128);
+  _left->throttle(255);
+  _right->throttle(128);
 }

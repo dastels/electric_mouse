@@ -6,8 +6,8 @@
 #include "debouncer.h"
 
 
-Debouncer::Debouncer(Debouncable &db, uint16_t interval_time)
-  : debouncable_object(&db)
+Debouncer::Debouncer(Debouncable *db, uint16_t interval_time)
+  : debouncable_object(db)
   , interval_millis(interval_time)
   , previous_millis(0)
   , state(0)

@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Base behaviour class
 //
 // Copyright (c) 2020 Dave Astels
@@ -7,7 +8,7 @@
 
 #include "state_machine.h"
 
-typedef enum {NONE, INACTIVE, ACTIVE, SURPRESSED} BehaviourStatus;
+enum class  BehaviourStatus {NONE, INACTIVE, ACTIVE, SURPRESSED};
 
 class Behaviour: public StateMachine
 {
@@ -16,14 +17,14 @@ class Behaviour: public StateMachine
   BehaviourStatus _previous_status;
 
  public:
-  Behaviour(System &system, String16 &name);
+  Behaviour(System *system, const char *name);
   void subsume(Behaviour *b);
   void activate();
   void deactivate();
   void surpress();
   void unsurpress();
   bool active();
-  virtual void update(uint32_t now);
+  void update(uint32_t now);
 };
 
 #endif

@@ -10,8 +10,8 @@
 
 class Motor
 {
-  AnalogOutput a;
-  AnalogOutput b;
+  AnalogOutput *_a;
+  AnalogOutput *_b;
 
  public:
   Motor(int pin_a, int pin_b);

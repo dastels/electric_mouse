@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // State Machine base class
 //
 // Copyright (c) 2020 Dave Astels
@@ -5,31 +6,37 @@
 #ifndef __STATE_MACHINE_H__
 #define __STATE_MACHINE_H__
 
-#include <etl/map.h>
-
 #include "system.h"
 #include "state.h"
 #include "event.h"
 #include "util.h"
 
+#define MAX_STATES (16)
+
 class StateMachine {
+ protected:
   System *_system;
-  String16 _name;
+  const char *_initial_state_name;
+
+ private:
+  const char *_name;
   State *_current_state;
-  String16 _initial_state_name;
-  etl::map<String16, State, 16> _states;
+  const char *_state_names[MAX_STATES];
+  State *_states[MAX_STATES];
+  int _number_of_states;
+
+  State *find_state(const char *state_name);
 
  public:
-  StateMachine(System &system, String16 &name);
-  ~StateMachine();
-  bool add_state(State &state);
+  StateMachine(System *system, const char *name);
+  bool add_state(State *state);
   void reset();
-  bool go_to_state(String16 &state_name, void *data=nullptr);
+  bool go_to_state(const char *state_name, void *data=nullptr);
   virtual void update(uint32_t now);
   virtual void event_occurred(Event &event);
-  String16 current_state_name();
-  String16 name();
-  System *system();
+  const char *current_state_name();
+  const char *name() { return _name; }
+  System *system() { return _system; }
 };
 
 #endif

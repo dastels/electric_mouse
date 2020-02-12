@@ -6,23 +6,23 @@
 #include "motor.h"
 
 Motor::Motor(int pin_a, int pin_b)
-  : a(AnalogOutput(pin_a))
-  , b(AnalogOutput(pin_b))
+  : _a(new AnalogOutput(pin_a))
+  , _b(new AnalogOutput(pin_b))
 
 {
-  a.write(0);
-  b.write(0);
+  _a->write(0);
+  _b->write(0);
 }
 
 
 void Motor::throttle(int pwm)
 {
   if (pwm < 0) {  // reverse speeds
-    a.write(-pwm);
-    b.write(0);
+    _a->write(-pwm);
+    _b->write(0);
 
   } else { // stop or forward
-    a.write(0);
-    b.write(pwm);
+    _a->write(0);
+    _b->write(pwm);
   }
 }

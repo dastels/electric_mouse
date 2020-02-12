@@ -10,11 +10,11 @@ DigitalInput::DigitalInput(int pin, Pull pull)
   : _pin_number(pin)
 {
   switch (pull) {
-  case NONE:
-  case DOWN:
+  case Pull::NONE:
+  case Pull::DOWN:
     pinMode(pin, INPUT);
     break;
-  case UP:
+  case Pull::UP:
     pinMode(pin, INPUT_PULLUP);
     break;
   }

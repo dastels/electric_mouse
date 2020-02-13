@@ -6,7 +6,7 @@
 #include "drive.h"
 
 GoForwardState::GoForwardState(StateMachine *owner_machine)
-  : State(owner_machine, "GoForward")
+  : State(owner_machine, "go-forward")
   , _drive(owner_machine->system()->drive())
 {
 }
@@ -19,9 +19,9 @@ void GoForwardState::update(uint32_t now)
 
 
 BehaviourGoForward::BehaviourGoForward(System *system)
-  :Behaviour(system, "Forward")
+  :Behaviour(system, "forward")
 {
   add_state(new GoForwardState(this));
-  _initial_state_name = "GoForward";
+  _initial_state_name = "go-forward";
   reset();
 }

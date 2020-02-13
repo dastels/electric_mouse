@@ -26,7 +26,7 @@ class Behaviours
   bool add(Behaviour *behaviour);
   void start();
   void update(uint32_t now);
-  void event_occurred(Event &event);
+  void event_occurred(Event *event);
   inline bool empty() { return _number_of_behaviours == 0; }
 
 

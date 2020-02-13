@@ -61,10 +61,10 @@ void StateMachine::update(uint32_t now)
 }
 
 
-void StateMachine::event_occurred(Event &event)
+void StateMachine::event_occurred(Event *event)
 {
   if (_current_state) {
-    _current_state->event_occurred(event, *this);
+    _current_state->event_occurred(event);
   }
 }
 

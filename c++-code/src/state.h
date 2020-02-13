@@ -27,8 +27,8 @@ class State {
   virtual void enter(void *data=nullptr) {}
   virtual void exit(void *data=nullptr) {}
   virtual void update(uint32_t now) {}
-  virtual void event_occurred(Event &event, StateMachine &machine) {}
-  void go_to(char *state_name, void *data=nullptr);
+  virtual void event_occurred(Event *event) {}
+  void go_to(const char *state_name, void *data=nullptr);
 };
 
 #endif

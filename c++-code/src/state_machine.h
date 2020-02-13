@@ -33,7 +33,7 @@ class StateMachine {
   void reset();
   bool go_to_state(const char *state_name, void *data=nullptr);
   virtual void update(uint32_t now);
-  virtual void event_occurred(Event &event);
+  virtual void event_occurred(Event *event);
   const char *current_state_name();
   const char *name() { return _name; }
   System *system() { return _system; }

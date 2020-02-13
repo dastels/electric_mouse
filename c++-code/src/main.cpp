@@ -22,7 +22,7 @@ Event *heartbeat_event;
 
 void setup()
 {
-  heartbeat_event = new Event {"hartbeat"};
+  heartbeat_event = new Event {"heartbeat"};
   the_system = new System(false);
   behaviours = new Behaviours(the_system);
   behaviours->add(new BehaviourGoForward(the_system));

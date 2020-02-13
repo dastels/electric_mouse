@@ -23,7 +23,7 @@ class LeftState: public State
 public:
   LeftState(StateMachine *owner_machine);
   void enter(void *data);
-  void exit();
+  void exit(void *data);
   void update(uint32_t now);
 };
 
@@ -36,7 +36,7 @@ class RightState: public State
  public:
   RightState(StateMachine *owner_machine);
   void enter(void *data);
-  void exit();
+  void exit(void *data);
   void update(uint32_t now);
 };
 
@@ -95,9 +95,10 @@ void LeftState::enter(void *data)
 }
 
 
-void LeftState::exit()
+void LeftState::exit(void *data)
 {
   _machine->system()->indicate(0x00, 0x00, 0x00);
+  State::exit();
 }
 
 
@@ -138,9 +139,10 @@ void RightState::enter(void *data)
 }
 
 
-void RightState::exit()
+void RightState::exit(void *data)
 {
   _machine->system()->indicate(0x00, 0x00, 0x00);
+  State::exit();
 }
 
 

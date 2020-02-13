@@ -9,8 +9,6 @@
 
 class IdleState: public State
 {
-  Drive *_drive;
-
  public:
   IdleState(StateMachine *owner_machine);
   void event_occurred(Event *event);
@@ -47,7 +45,6 @@ class RightState: public State
 
 IdleState::IdleState(StateMachine *owner_machine)
   : State(owner_machine, "idle")
-  , _drive(owner_machine->system()->drive())
 {
 }
 

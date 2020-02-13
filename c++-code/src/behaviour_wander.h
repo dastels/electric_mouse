@@ -2,29 +2,19 @@
 //
 // Copyright (c) 2020 Dave Astels
 
-#ifndef __BEHAVIOUR_GO_FORWARD_H__
-#define __BEHAVIOUR_GO_FORWARD_H__
+#ifndef __BEHAVIOUR_WANDER_H__
+#define __BEHAVIOUR_WANDER_H__
 
 #include <stdint.h>
 
-#include "state.h"
-#include "state_machine.h"
 #include "behaviour.h"
-
-class IdleState: public State
-{
-  Drive *_drive;
-
- public:
-  GoForwardState(StateMachine *owner_machine);
-  virtual void update(uint32_t now);
-};
+#include "system.h"
 
 
-class BehaviourGoForward: public Behaviour
+class BehaviourWander: public Behaviour
 {
  public:
-  BehaviourGoForward(System *system);
+  BehaviourWander(System *system);
 };
 
 

@@ -23,6 +23,7 @@ class State {
  public:
   State(StateMachine *owner_machine=nullptr, const char *name=nullptr);
   const char *name() { return _name; }
+  bool is_named(const char *name);
 
   virtual void enter(void *data=nullptr) {}
   virtual void exit(void *data=nullptr) {}

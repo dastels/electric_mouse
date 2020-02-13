@@ -21,7 +21,6 @@ class StateMachine {
  private:
   const char *_name;
   State *_current_state;
-  const char *_state_names[MAX_STATES];
   State *_states[MAX_STATES];
   int _number_of_states;
 

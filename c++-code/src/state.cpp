@@ -13,7 +13,13 @@ State::State(StateMachine *machine, const char *name)
 }
 
 
-void State::go_to(char *state_name, void *data)
+bool State::is_named(const char *name)
+{
+  return strcmp(name, _name) == 0;
+}
+
+
+void State::go_to(const char *state_name, void *data)
 {
   _machine->go_to_state(state_name, data);
 }

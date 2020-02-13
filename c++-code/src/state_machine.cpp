@@ -16,7 +16,6 @@ StateMachine::StateMachine(System *system, const char *name)
 bool StateMachine::add_state(State *state)
 {
   if (_number_of_states == MAX_STATES) return false;
-  _state_names[_number_of_states] = state->name();
   _states[_number_of_states++] = state;
   return true;
 }
@@ -31,7 +30,7 @@ void StateMachine::reset()
 State *StateMachine::find_state(const char *state_name)
 {
   for (int index = 0; index < _number_of_states; index++) {
-    if (strcmp(state_name, _state_names[index]) == 0) {
+    if (_states[index]->is_named(state_name)) {
       return _states[index];
     }
   }

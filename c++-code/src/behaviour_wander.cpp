@@ -53,9 +53,9 @@ void IdleState::event_occurred(Event *event)
 {
   if (strcmp(event->name, "heartbeat") == 0) {
     int chance = random(100);
-    if (chance < 50) {
+    if (chance < 20) {
       ((Behaviour*)_machine)->activate();
-      if (chance < 25) {
+      if (chance < 10) {
         go_to("left");
       } else {
         go_to("right");

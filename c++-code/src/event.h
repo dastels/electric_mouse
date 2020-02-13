@@ -8,7 +8,11 @@
 
 class Event
 {
+  const char *_name;
 
+ public:
+  Event(const char *name);
+  const char *name() { return _name; }
 };
 
 #endif

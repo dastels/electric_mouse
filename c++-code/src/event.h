@@ -6,13 +6,8 @@
 #ifndef __EVENT_H__
 #define __EVENT_H__
 
-class Event
-{
-  const char *_name;
-
- public:
-  Event(const char *name);
-  const char *name() { return _name; }
+struct Event {
+  const char *name;
 };
 
 #endif

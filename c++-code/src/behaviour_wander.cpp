@@ -51,7 +51,7 @@ IdleState::IdleState(StateMachine *owner_machine)
 
 void IdleState::event_occurred(Event *event)
 {
-  if (strcmp(event->name(), "heartbeat") == 0) {
+  if (strcmp(event->name, "heartbeat") == 0) {
     int chance = random(100);
     if (chance < 50) {
       ((Behaviour*)_machine)->activate();

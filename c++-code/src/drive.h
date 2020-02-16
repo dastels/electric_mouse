@@ -11,7 +11,7 @@
 
 class System;
 
-typedef enum {STOPPED, FORWARD, REVERSE, PIVOT_LEFT, PIVOT_RIGHT, VEER_LEFT, VEER_RIGHT} DriveState;
+enum class DriveState {STOPPED, FORWARD, REVERSE, PIVOT_LEFT, PIVOT_RIGHT, VEER_LEFT, VEER_RIGHT};
 
 // -----------------------------------------------------------------------------
 // Abstract base
@@ -26,13 +26,15 @@ public:
   static Drive *make_drive(bool debug_mode, System *sys);
   Drive(System *sys);
   DriveState state() { return _state; }
-  virtual void enable() = 0;
-  virtual void disable() = 0;
+  virtual void base_speed(int speed) {}
+  virtual void trim(const int left_trim, const int right_trim) {}
+  virtual void enable() {}
+  virtual void disable() {}
   virtual void stop();
-  virtual void forward(int pwm=255);
-  virtual void reverse(int pwm=255);
-  virtual void pivot_left(int pwm=128);
-  virtual void pivot_right(int pwm=128);
+  virtual void forward();
+  virtual void reverse();
+  virtual void pivot_left();
+  virtual void pivot_right();
   virtual void veer_left();
   virtual void veer_right();
 };
@@ -44,13 +46,11 @@ class FakeDrive: public Drive
 {
 public:
   FakeDrive(System *sys);
-  void enable();
-  void disable();
   void stop();
-  void forward(int pwm=255);
-  void reverse(int pwm=255);
-  void pivot_left(int pwm=128);
-  void pivot_right(int pwm=128);
+  void forward();
+  void reverse();
+  void pivot_left();
+  void pivot_right();
   void veer_left();
   void veer_right();
 };
@@ -64,16 +64,20 @@ class RealDrive: public Drive
   DigitalOutput *_motor_enable;
   Motor *_left;
   Motor *_right;
+  int _base_speed;
+  int _half_speed;
 
 public:
   RealDrive(System *sys);
+  void base_speed(int speed);
+  void trim(const int left_trim, const int right_trim);
   void enable();
   void disable();
   void stop();
-  void forward(int pwm=255);
-  void reverse(int pwm=255);
-  void pivot_left(int pwm=128);
-  void pivot_right(int pwm=128);
+  void forward();
+  void reverse();
+  void pivot_left();
+  void pivot_right();
   void veer_left();
   void veer_right();
 };

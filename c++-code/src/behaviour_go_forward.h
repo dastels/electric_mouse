@@ -8,19 +8,7 @@
 
 #include <stdint.h>
 
-#include "state.h"
-#include "state_machine.h"
 #include "behaviour.h"
-
-class GoForwardState: public State
-{
-  Drive *_drive;
-
- public:
-  GoForwardState(StateMachine *owner_machine);
-  virtual void update(uint32_t now);
-};
-
 
 class BehaviourGoForward: public Behaviour
 {

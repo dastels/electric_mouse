@@ -7,38 +7,40 @@
 
 // local states
 
-class IdleState: public State
-{
- public:
-  IdleState(StateMachine *owner_machine);
-  void event_occurred(Event *event);
-};
+namespace {
+
+  class IdleState: public State
+  {
+  public:
+    IdleState(StateMachine *owner_machine);
+    void event_occurred(Event *event);
+  };
 
 
-class LeftState: public State
-{
-  Drive *_drive;
-  uint32_t _timeout;
+  class LeftState: public State
+  {
+    Drive *_drive;
+    uint32_t _timeout;
 
-public:
+  public:
   LeftState(StateMachine *owner_machine);
-  void enter(void *data);
-  void exit(void *data);
-  void update(uint32_t now);
-};
+    void enter(void *data);
+    void update(uint32_t now);
+  };
 
 
-class RightState: public State
-{
-  Drive *_drive;
-  uint32_t _timeout;
+  class RightState: public State
+  {
+    Drive *_drive;
+    uint32_t _timeout;
 
- public:
-  RightState(StateMachine *owner_machine);
-  void enter(void *data);
-  void exit(void *data);
-  void update(uint32_t now);
-};
+  public:
+    RightState(StateMachine *owner_machine);
+    void enter(void *data);
+    void update(uint32_t now);
+  };
+
+}
 
 // -----------------------------------------------------------------------------
 // idle
@@ -51,7 +53,8 @@ IdleState::IdleState(StateMachine *owner_machine)
 
 void IdleState::event_occurred(Event *event)
 {
-  if (strcmp(event->name, "heartbeat") == 0) {
+  State::event_occurred(event);
+  if (event->subsystem == EventSubsystem::HEARTBEAT) {
     int chance = random(100);
     if (chance < 20) {
       ((Behaviour*)_machine)->activate();
@@ -80,7 +83,6 @@ LeftState::LeftState(StateMachine *owner_machine)
 void LeftState::enter(void *data)
 {
   State::enter(data);
-  _machine->system()->indicate(0x00, 0xFF, 0x00);
   _timeout = millis() + random(1, 25) * 20;
   switch (_drive->state()) {
   case DriveState::FORWARD:
@@ -95,15 +97,9 @@ void LeftState::enter(void *data)
 }
 
 
-void LeftState::exit(void *data)
-{
-  _machine->system()->indicate(0x00, 0x00, 0x00);
-  State::exit();
-}
-
-
 void LeftState::update(uint32_t now)
 {
+  State::update(now);
   if (now > _timeout) {
     ((Behaviour*)_machine)->deactivate();
   }
@@ -124,7 +120,6 @@ RightState::RightState(StateMachine *owner_machine)
 void RightState::enter(void *data)
 {
   State::enter(data);
-  _machine->system()->indicate(0x00, 0x00, 0xFF);
   _timeout = millis() + random(1, 25) * 20;
   switch (_drive->state()) {
   case DriveState::FORWARD:
@@ -139,15 +134,9 @@ void RightState::enter(void *data)
 }
 
 
-void RightState::exit(void *data)
-{
-  _machine->system()->indicate(0x00, 0x00, 0x00);
-  State::exit();
-}
-
-
 void RightState::update(uint32_t now)
 {
+  State::update(now);
   if (now > _timeout) {
     ((Behaviour*)_machine)->deactivate();
   }

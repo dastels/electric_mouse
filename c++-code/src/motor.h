@@ -13,9 +13,11 @@ class Motor
 {
   AnalogOutput *_a;
   AnalogOutput *_b;
+  int _trim;
 
  public:
   Motor(int pin_a, int pin_b);
+  void trim(const int t);
   void throttle(int pwm);
 };
 

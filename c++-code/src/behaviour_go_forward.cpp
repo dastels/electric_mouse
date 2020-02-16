@@ -2,8 +2,24 @@
 //
 // Copyright (c) 2020 Dave Astels
 
+#include "state.h"
+#include "state_machine.h"
 #include "behaviour_go_forward.h"
 #include "drive.h"
+
+namespace {
+
+  class GoForwardState: public State
+  {
+    Drive *_drive;
+
+  public:
+    GoForwardState(StateMachine *owner_machine);
+    virtual void update(uint32_t now);
+  };
+
+}
+
 
 GoForwardState::GoForwardState(StateMachine *owner_machine)
   : State(owner_machine, "go-forward")

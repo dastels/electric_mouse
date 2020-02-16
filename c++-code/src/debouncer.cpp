@@ -8,8 +8,8 @@
 
 Debouncer::Debouncer(Debouncable *db, uint16_t interval_time)
   : debouncable_object(db)
-  , interval_millis(interval_time)
   , previous_millis(0)
+  , interval_millis(interval_time)
   , state(0)
 {
 }
@@ -17,6 +17,7 @@ Debouncer::Debouncer(Debouncable *db, uint16_t interval_time)
 
 bool Debouncer::update()
 {
+  unsetStateFlag(CHANGED_STATE);
   // Read the state of the object in a temporary variable.
   bool currentState = debouncable_object->value();
 
@@ -36,34 +37,4 @@ bool Debouncer::update()
     }
   }
   return  changed();
-}
-
-
-bool Debouncer::read()
-{
-  return  getStateFlag(DEBOUNCED_STATE);
-}
-
-
-bool Debouncer::fell()
-{
-  return  !getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE);
-}
-
-
-bool Debouncer::rose()
-{
-  return getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE);
-}
-
-
-unsigned long Debouncer::duration()
-{
-  return (millis() - stateChangeLastTime);
-}
-
-
-unsigned long Debouncer::previousDuration()
-{
-  return durationOfPreviousState;
 }

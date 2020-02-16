@@ -31,13 +31,13 @@ class Debouncer
 
  public:
   Debouncer(Debouncable *db, uint16_t interval_time=10);
-  bool changed( ) { return getStateFlag(CHANGED_STATE); }
   bool update();
-  bool read();
-  bool fell();
-  bool rose();
-  unsigned long duration();
-  unsigned long previousDuration();
+  bool changed() {return getStateFlag(CHANGED_STATE); }
+  bool value() { return  getStateFlag(DEBOUNCED_STATE); }
+  bool fell() { return !getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE); }
+  bool rose() { return getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE); }
+  unsigned long duration() { return (millis() - stateChangeLastTime); }
+  unsigned long previousDuration() { return durationOfPreviousState; }
 };
 
 #endif

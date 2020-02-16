@@ -12,7 +12,7 @@
 // Abstract base
 
 Drive::Drive(System *sys)
-  : _state(STOPPED)
+  : _state(DriveState::STOPPED)
   , _system(sys)
 {
 }
@@ -30,43 +30,43 @@ Drive *Drive::make_drive(bool debug_mode, System *sys)
 
 void Drive::stop()
 {
-  _state = STOPPED;
+  _state = DriveState::STOPPED;
 }
 
 
-void Drive::forward(int pwm)
+void Drive::forward()
 {
-  _state = FORWARD;
+  _state = DriveState::FORWARD;
 }
 
 
-void Drive::reverse(int pwm)
+void Drive::reverse()
 {
-  _state = REVERSE;
+  _state = DriveState::REVERSE;
 }
 
 
-void Drive::pivot_left(int pwm)
+void Drive::pivot_left()
 {
-  _state = PIVOT_LEFT;
+  _state = DriveState::PIVOT_LEFT;
 }
 
 
-void Drive::pivot_right(int pwm)
+void Drive::pivot_right()
 {
-  _state = PIVOT_RIGHT;
+  _state = DriveState::PIVOT_RIGHT;
 }
 
 
 void Drive::veer_left()
 {
-  _state = VEER_LEFT;
+  _state = DriveState::VEER_LEFT;
 }
 
 
 void Drive::veer_right()
 {
-  _state = VEER_RIGHT;
+  _state = DriveState::VEER_RIGHT;
 }
 
 
@@ -79,46 +79,34 @@ FakeDrive::FakeDrive(System *sys)
 }
 
 
-void FakeDrive::enable()
-{
-}
-
-
-void FakeDrive::disable()
-{
-}
-
-
-
-
 void FakeDrive::stop()
 {
   Drive::stop();
 }
 
 
-void FakeDrive::forward(int pwm)
+void FakeDrive::forward()
 {
-  Drive::forward(pwm);
+  Drive::forward();
 
 }
 
 
-void FakeDrive::reverse(int pwm)
+void FakeDrive::reverse()
 {
-  Drive::reverse(pwm);
+  Drive::reverse();
 }
 
 
-void FakeDrive::pivot_left(int pwm)
+void FakeDrive::pivot_left()
 {
-  Drive::pivot_left(pwm);
+  Drive::pivot_left();
 }
 
 
-void FakeDrive::pivot_right(int pwm)
+void FakeDrive::pivot_right()
 {
-  Drive::pivot_right(pwm);
+  Drive::pivot_right();
 }
 
 
@@ -142,9 +130,28 @@ RealDrive::RealDrive(System *sys)
   , _motor_enable(new DigitalOutput(16))
   , _left(new Motor(13, 12))
   , _right(new Motor(11, 4))
+  , _base_speed(128)
+  , _half_speed( 64)
 
 {
 }
+
+
+void RealDrive::base_speed(int speed)
+{
+  Drive::base_speed(speed);
+  _base_speed = speed;
+  _half_speed = speed / 2;
+}
+
+
+void RealDrive::trim(const int left_trim, const int right_trim)
+{
+  Drive::trim(left_trim, right_trim);
+  _left->trim(left_trim);
+  _right->trim(right_trim);
+}
+
 
 void RealDrive::enable()
 {
@@ -166,49 +173,49 @@ void RealDrive::stop()
 }
 
 
-void RealDrive::forward(int pwm)
+void RealDrive::forward()
 {
-  Drive::forward(pwm);
-  _left->throttle(pwm);
-  _right->throttle(pwm);
+  Drive::forward();
+  _left->throttle(_base_speed);
+  _right->throttle(_base_speed);
 }
 
 
-void RealDrive::reverse(int pwm)
+void RealDrive::reverse()
 {
-  Drive::reverse(pwm);
-  _left->throttle(-pwm);
-  _right->throttle(-pwm);
+  Drive::reverse();
+  _left->throttle(-_base_speed);
+  _right->throttle(-_base_speed);
 }
 
 
-void RealDrive::pivot_left(int pwm)
+void RealDrive::pivot_left()
 {
-  Drive::pivot_left(pwm);
-  _left->throttle(-pwm);
-  _right->throttle(pwm);
+  Drive::pivot_left();
+  _left->throttle(-_half_speed);
+  _right->throttle(_half_speed);
 }
 
 
-void RealDrive::pivot_right(int pwm)
+void RealDrive::pivot_right()
 {
-  Drive::pivot_right(pwm);
-  _left->throttle(pwm);
-  _right->throttle(-pwm);
+  Drive::pivot_right();
+  _left->throttle(_half_speed);
+  _right->throttle(-_half_speed);
 }
 
 
 void RealDrive::veer_left()
 {
   Drive::veer_left();
-  _left->throttle(128);
-  _right->throttle(255);
+  _left->throttle(_half_speed);
+  _right->throttle(_base_speed);
 }
 
 
 void RealDrive::veer_right()
 {
   Drive::veer_right();
-  _left->throttle(255);
-  _right->throttle(128);
+  _left->throttle(_base_speed);
+  _right->throttle(_half_speed);
 }

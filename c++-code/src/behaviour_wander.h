@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Go-Forward behaviour
 //
 // Copyright (c) 2020 Dave Astels

@@ -46,6 +46,7 @@ void Behaviours::update(uint32_t now)
 
 void Behaviours::event_occurred(Event *event)
 {
+  _system->indicate(0x88, 0x88, 0x88);
   for (uint8_t index = _number_of_behaviours - 1; index >= 0; index--) {
     _behaviours[index]->event_occurred(event);
     if (_behaviours[index]->active()) {

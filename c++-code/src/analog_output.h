@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Analog output pin
 //
 // Copyright (c) 2020 Dave Astels

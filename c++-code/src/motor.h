@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 // Motor interface
 //
 // Copyright (c) 2020 Dave Astels

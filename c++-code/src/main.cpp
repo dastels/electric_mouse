@@ -3,6 +3,7 @@
 // Copyright (c) 2020 Dave Astels
 
 #include <Arduino.h>
+#include "logging.h"
 #include "config.h"
 #include "system.h"
 #include "drive.h"
@@ -13,6 +14,7 @@
 #include "behaviour_whisker.h"
 #include "behaviour_follow.h"
 
+Logger *logger;
 
 // motor trim
 const int left_trim = 10;
@@ -90,8 +92,14 @@ void initialize_serial()
   Serial.begin(115200);
   while (!Serial);
   delay(1000);
-  Serial << "Connected." << endl;
-  Serial << "Electric Mouse version " << __MOUSE_VERSION__ << endl;
+}
+
+
+void initialize_logger()
+{
+  logger = Logger::get_logger();
+  logger->info("Connected.");
+  logger->info("Electric Mouse version %f", __MOUSE_VERSION__);
 }
 
 
@@ -122,6 +130,7 @@ void initialize_behaviours()
 void setup()
 {
   initialize_serial();
+  initialize_logger();
   initialize_events();
   initialize_hardware();
   the_system->indicate(0x00, 0x00, 0x88);
@@ -138,10 +147,6 @@ void loop()
 
   now = millis();
 
-  if ((now % 1000) == 0) {
-    Serial << "loop" << endl;
-  }
-
   if (now >= heartbeat_time) {
     heartbeat_time = now + heartbeat_interval;
     behaviours->event_occurred(heartbeat_event);
@@ -149,17 +154,13 @@ void loop()
 
   if (now >= update_time) {
     update_time = now + update_interval;
-    //    Serial << "updating system" << endl;
     the_system->update(now);
-    //    Serial << "updating behaviours" << endl;
     behaviours->update(now);
 
     // Whiskers
     if (right_whisker->fell()) {
-      Serial << "Right whisker" << endl;
       behaviours->event_occurred(right_whisker_event);
     } else if (left_whisker->fell()) {
-      Serial << "Left whisker" << endl;
       behaviours->event_occurred(left_whisker_event);
     }
 

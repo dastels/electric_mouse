@@ -30,10 +30,10 @@ void System::update(uint32_t now)
   _right_whisker->update();
   _low_voltage->update();
   _propwing_switch->update();
-  if (now >= _ir_update_time ) {
-    _ir_update_time = now + IR_UPDATE_INTERVAL;
-    _ir->update(now);
-  }
+  // if (now >= _ir_update_time ) {
+  //   _ir_update_time = now + IR_UPDATE_INTERVAL;
+  //   _ir->update(now);
+  // }
 }
 
 

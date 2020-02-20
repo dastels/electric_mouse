@@ -87,6 +87,7 @@ ReverseState::ReverseState(StateMachine *owner_machine)
 void ReverseState::enter(void *data)
 {
   State::enter(data);
+
   _data = (char *)data;
   _timeout = millis() + REVERSE_TIME;
   _drive->reverse();

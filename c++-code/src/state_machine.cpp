@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2020 Dave Astels
 
+#include <Streaming.h>
 #include <string.h>
 #include "state_machine.h"
 
@@ -44,9 +45,11 @@ bool StateMachine::go_to_state(const char *state_name, void *data)
   State *new_state = find_state(state_name);
   if (new_state == nullptr) return false; // bad state name
   if (_current_state) {
+    Serial << "Exiting " << name() << ":" << _current_state->name() << endl;
     _current_state->exit();
   }
   _current_state = new_state;
+  Serial << "Entering " << name() << ":" << _current_state->name() << endl;
   _current_state->enter(data);
   return true;
 }

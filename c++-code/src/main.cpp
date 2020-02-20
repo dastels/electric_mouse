@@ -3,6 +3,7 @@
 // Copyright (c) 2020 Dave Astels
 
 #include <Arduino.h>
+#include "config.h"
 #include "system.h"
 #include "drive.h"
 #include "ir.h"
@@ -84,6 +85,16 @@ void initialize_events()
 }
 
 
+void initialize_serial()
+{
+  Serial.begin(115200);
+  while (!Serial);
+  delay(1000);
+  Serial << "Connected." << endl;
+  Serial << "Electric Mouse version " << __MOUSE_VERSION__ << endl;
+}
+
+
 void initialize_hardware()
 {
   the_system = new System(false);
@@ -110,6 +121,7 @@ void initialize_behaviours()
 
 void setup()
 {
+  initialize_serial();
   initialize_events();
   initialize_hardware();
   the_system->indicate(0x00, 0x00, 0x88);
@@ -126,6 +138,10 @@ void loop()
 
   now = millis();
 
+  if ((now % 1000) == 0) {
+    Serial << "loop" << endl;
+  }
+
   if (now >= heartbeat_time) {
     heartbeat_time = now + heartbeat_interval;
     behaviours->event_occurred(heartbeat_event);
@@ -133,13 +149,17 @@ void loop()
 
   if (now >= update_time) {
     update_time = now + update_interval;
+    //    Serial << "updating system" << endl;
     the_system->update(now);
+    //    Serial << "updating behaviours" << endl;
     behaviours->update(now);
 
     // Whiskers
     if (right_whisker->fell()) {
+      Serial << "Right whisker" << endl;
       behaviours->event_occurred(right_whisker_event);
     } else if (left_whisker->fell()) {
+      Serial << "Left whisker" << endl;
       behaviours->event_occurred(left_whisker_event);
     }
 
@@ -156,5 +176,4 @@ void loop()
     //   behaviours->event_occurred(no_hotspot_event);
     // }
   }
-  delay(100);
 }

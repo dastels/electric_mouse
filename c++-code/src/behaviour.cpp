@@ -42,6 +42,7 @@ void Behaviour::surpress()
 {
   _previous_status = _status;
   _status = BehaviourStatus::SURPRESSED;
+  reset();
   if (_subsumed_behaviour) {
     _subsumed_behaviour->surpress();
   }

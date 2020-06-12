@@ -15,7 +15,7 @@
 class BehaviourWander: public Behaviour
 {
  public:
-  BehaviourWander(System *system);
+  BehaviourWander(System *system, bool should_log_transitions);
 };
 
 

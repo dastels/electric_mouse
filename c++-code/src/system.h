@@ -6,19 +6,21 @@
 #ifndef __SYSTEM_H__
 #define __SYSTEM_H__
 
-#include <Adafruit_NeoPixel.h>
+#include "indicator.h"
 #include "debouncer.h"
 #include "digital_output.h"
 #include "digital_input.h"
 #include "ir.h"
+#include "properties.h"
+#include <Adafruit_LIS3DH.h>
 
-const unsigned int IR_UPDATE_INTERVAL = 125;
+const unsigned int IR_UPDATE_INTERVAL = 400;
 
 class Drive;
 
 class System
 {
-  Adafruit_NeoPixel *_strip;
+  Indicator *_indicator;
   Drive *_drive;
   DigitalOutput *_propwing_power;
   Debouncer *_right_whisker;
@@ -26,13 +28,16 @@ class System
   Debouncer *_low_voltage;
   Debouncer *_propwing_switch;
   unsigned long _ir_update_time;
+  unsigned long _ir_update_interval;
+  Adafruit_LIS3DH *_accel;
   Ir *_ir;
   Debouncer *_hotspot;
   Debouncer *_in_your_face;
 
  public:
-  System(bool debug_mode);
-  void update(uint32_t now);
+  System(Properties *props);
+  void set_ir_update_interval(unsigned long interval) { _ir_update_interval = interval; }
+  bool update(uint32_t now);
   void power_off();
   void power_on();
   Drive *drive() { return _drive; }
@@ -43,7 +48,8 @@ class System
   Debouncer *hotspot() { return _hotspot; }
   Debouncer *in_your_face() { return _in_your_face; }
   Ir *ir() { return _ir; }
-  void indicate(uint8_t red, uint8_t green, uint8_t blue);
+  Adafruit_LIS3DH *accel() { return _accel; }
+  Indicator *indicator() { return _indicator; }
 };
 
 #endif

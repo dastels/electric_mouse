@@ -2,8 +2,12 @@
 //
 // Copyright (c) 2020 Dave Astels
 
+#include "logging.h"
 #include "behaviour_wander.h"
 #include "drive.h"
+
+extern Logger *logger;
+
 
 // local states
 
@@ -42,6 +46,13 @@ namespace {
 
 }
 
+
+uint32_t turn_time()
+{
+  return millis() + random(1, 10) * 100;
+}
+
+
 // -----------------------------------------------------------------------------
 // idle
 
@@ -56,9 +67,9 @@ void IdleState::event_occurred(Event *event)
   State::event_occurred(event);
   if (event->subsystem == EventSubsystem::HEARTBEAT) {
     int chance = random(100);
-    if (chance < 20) {
+    if (chance < 10) {
       ((Behaviour*)_machine)->activate();
-      if (chance < 10) {
+      if (random(100) < 50) {
         go_to("left");
       } else {
         go_to("right");
@@ -83,7 +94,7 @@ LeftState::LeftState(StateMachine *owner_machine)
 void LeftState::enter(void *data)
 {
   State::enter(data);
-  _timeout = millis() + random(1, 25) * 20;
+  _timeout = turn_time();
   switch (_drive->state()) {
   case DriveState::FORWARD:
     _drive->veer_left();
@@ -120,7 +131,7 @@ RightState::RightState(StateMachine *owner_machine)
 void RightState::enter(void *data)
 {
   State::enter(data);
-  _timeout = millis() + random(1, 25) * 20;
+  _timeout = turn_time();
   switch (_drive->state()) {
   case DriveState::FORWARD:
     _drive->veer_right();
@@ -146,8 +157,8 @@ void RightState::update(uint32_t now)
 // -----------------------------------------------------------------------------
 // wander behaviour
 
-BehaviourWander::BehaviourWander(System *system)
-  :Behaviour(system, "wander")
+BehaviourWander::BehaviourWander(System *system, bool should_log_transitions)
+  :Behaviour(system, "wander", should_log_transitions)
 {
   add_state(new IdleState(this));
   add_state(new LeftState(this));

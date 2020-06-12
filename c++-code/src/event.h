@@ -10,7 +10,10 @@ enum class EventSubsystem {HEARTBEAT, WHISKER, IR};
 enum class EventType {HOTSPOT, INYOURFACE, FOCUS, LEFT, RIGHT};
 enum class EventFocus {NONE, LEFT, CENTER, RIGHT};
 
-struct Event {
+const char *name_of_focus(EventFocus focus);
+
+class Event {
+public:
   EventSubsystem subsystem;
   EventType type;
   union {
@@ -19,6 +22,18 @@ struct Event {
     EventFocus focus_value;
     char *str_value;
   };
+
+  Event(EventSubsystem subsystem);
+  Event(EventSubsystem subsystem, EventType type);
+  Event(EventSubsystem subsystem, EventType type, bool value);
+  Event(EventSubsystem subsystem, EventType type, int value);
+  Event(EventSubsystem subsystem, EventType type, EventFocus value);
+  Event(EventSubsystem subsystem, EventType type, char * value);
+
+  const char *subsystem_str();
+  const char *type_str();
+  const char *value_str();
+  const char *to_string();
 };
 
 #endif

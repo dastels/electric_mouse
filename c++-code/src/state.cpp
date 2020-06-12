@@ -5,11 +5,14 @@
 #include "state.h"
 #include "state_machine.h"
 
+#include "logging.h"
+extern Logger *logger;
 
 State::State(StateMachine *machine, const char *name)
   : _machine(machine)
   , _name(name)
 {
+  logger->debug("Creating state %s", name);
 }
 
 

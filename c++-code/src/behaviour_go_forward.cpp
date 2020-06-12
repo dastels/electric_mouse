@@ -6,6 +6,10 @@
 #include "state_machine.h"
 #include "behaviour_go_forward.h"
 #include "drive.h"
+#include "logging.h"
+
+extern Logger *logger;
+
 
 namespace {
 
@@ -34,10 +38,12 @@ void GoForwardState::update(uint32_t now)
 }
 
 
-BehaviourGoForward::BehaviourGoForward(System *system)
-  :Behaviour(system, "forward")
+BehaviourGoForward::BehaviourGoForward(System *system, bool should_log_transitions)
+  :Behaviour(system, "forward", should_log_transitions)
 {
+  logger->info("Creating behaviour %s", _name);
   add_state(new GoForwardState(this));
   _initial_state_name = "go-forward";
   reset();
+  logger->info("Created behaviour %s", _name);
 }

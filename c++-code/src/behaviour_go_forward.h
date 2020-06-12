@@ -13,7 +13,7 @@
 class BehaviourGoForward: public Behaviour
 {
  public:
-  BehaviourGoForward(System *system);
+  BehaviourGoForward(System *system, bool should_log_transitions);
 };
 
 

@@ -2,14 +2,18 @@
 //
 // Copyright (c) 2020 Dave Astels
 
-#include <iterator>
-
-#include "behaviours.h"
+#include "logging.h"
 #include "system.h"
+#include "behaviours.h"
+
+extern Logger *logger;
+const unsigned long update_interval = 10; // how often to update
+
 
 Behaviours::Behaviours(System *sys)
   : _number_of_behaviours(0)
   , _system(sys)
+  , _update_time(0)
 {
 }
 
@@ -35,10 +39,13 @@ void Behaviours::start()
 
 void Behaviours::update(uint32_t now)
 {
-  for (uint8_t index = _number_of_behaviours - 1; index >= 0; index--) {
-    _behaviours[index]->update(now);
-    if (_behaviours[index]->active()) {
-      return;
+  if (now >= _update_time) {
+    _update_time = now + update_interval;
+    for (uint8_t index = _number_of_behaviours - 1; index >= 0; index--) {
+      _behaviours[index]->update(now);
+      if (_behaviours[index]->active()) {
+        return;
+      }
     }
   }
 }
@@ -46,10 +53,11 @@ void Behaviours::update(uint32_t now)
 
 void Behaviours::event_occurred(Event *event)
 {
-  _system->indicate(0x88, 0x88, 0x88);
+  logger->debug_deep("%s", event->to_string());
   for (uint8_t index = _number_of_behaviours - 1; index >= 0; index--) {
     _behaviours[index]->event_occurred(event);
     if (_behaviours[index]->active()) {
+      logger->debug_deep("%s processed by %s", event->to_string(), _behaviours[index]->name());
       return;
     }
   }

@@ -5,11 +5,12 @@
 #include "hotspot_debouncable.h"
 
 HotspotDebouncable::HotspotDebouncable(Ir *ir)
-  :_ir(ir)
+  : _ir(ir)
 {
 }
 
 bool HotspotDebouncable::value()
 {
-  return _ir->percent_above(IrSlice::ALL) > 10;
+  int percentage = _ir->percent_above(IrSlice::ALL);
+  return (percentage >= 10) && (percentage < 75);
 }

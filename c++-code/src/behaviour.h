@@ -17,7 +17,7 @@ class Behaviour: public StateMachine
   BehaviourStatus _previous_status;
 
  public:
-  Behaviour(System *system, const char *name);
+  Behaviour(System *system, const char *name, bool should_log_transitions);
   void subsume(Behaviour *b);
   void activate();
   void deactivate();

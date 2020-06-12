@@ -62,15 +62,17 @@ IdleState::IdleState(StateMachine *owner_machine)
 
 void IdleState::enter(void *data)
 {
-  _machine->system()->indicate(0x00, 0x00, 0x00);
 }
 
 
 void IdleState::event_occurred(Event *event)
 {
   State::event_occurred(event);
-  if (event->subsystem == EventSubsystem::IR && event->type == EventType::HOTSPOT) {
-    if (event->bool_value) {
+  if (event->subsystem == EventSubsystem::IR) {
+    bool need_to_steer = event->type == EventType::FOCUS && (event->focus_value == EventFocus::LEFT ||
+                                                             event->focus_value == EventFocus::RIGHT);
+    bool hotspot_seen = event->type == EventType::HOTSPOT && event->bool_value;
+    if (hotspot_seen || need_to_steer) {
       ((Behaviour*)_machine)->activate();
       go_to("track");
     }
@@ -89,7 +91,6 @@ TrackState::TrackState(StateMachine *owner_machine)
 
 void TrackState::enter(void *data)
 {
-  _machine->system()->indicate(0xFF, 0xFF, 0xFF);
 }
 
 
@@ -131,7 +132,6 @@ LeftState::LeftState(StateMachine *owner_machine)
 void LeftState::enter(void *data)
 {
   State::enter(data);
-  _machine->system()->indicate(0x00, 0xFF, 0x00);
   switch (_drive->state()) {
   case DriveState::FORWARD:
     _drive->veer_left();
@@ -184,7 +184,6 @@ RightState::RightState(StateMachine *owner_machine)
 void RightState::enter(void *data)
 {
   State::enter(data);
-  _machine->system()->indicate(0x00, 0x00, 0xFF);
   switch (_drive->state()) {
   case DriveState::FORWARD:
     _drive->veer_right();
@@ -227,8 +226,8 @@ void RightState::event_occurred(Event *event)
 // -----------------------------------------------------------------------------
 // follow behaviour
 
-BehaviourFollow::BehaviourFollow(System *system)
-  :Behaviour(system, "follow")
+BehaviourFollow::BehaviourFollow(System *system, bool should_log_transitions)
+  :Behaviour(system, "follow", should_log_transitions)
 {
   add_state(new IdleState(this));
   add_state(new TrackState(this));

@@ -8,6 +8,7 @@
 
 #include "digital_output.h"
 #include "motor.h"
+#include "indicator.h"
 
 class System;
 
@@ -66,6 +67,7 @@ class RealDrive: public Drive
   Motor *_right;
   int _base_speed;
   int _half_speed;
+  Indicator *_indicator;
 
 public:
   RealDrive(System *sys);

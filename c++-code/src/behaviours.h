@@ -20,6 +20,7 @@ class Behaviours
   Behaviour *_behaviours[MAX_BEHAVIOURS];
   uint8_t _number_of_behaviours;
   System *_system;
+  unsigned long _update_time;
 
  public:
   Behaviours(System *sys);

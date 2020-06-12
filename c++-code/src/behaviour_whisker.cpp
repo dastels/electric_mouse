@@ -5,7 +5,8 @@
 #include "behaviour_whisker.h"
 #include "drive.h"
 
-const unsigned long REVERSE_TIME = 250;
+// Reverse until whisker is release then this much more to try to clear the obstacle
+const unsigned long EXTRA_REVERSE_TIME = 200;
 
 namespace {
   // local states
@@ -22,11 +23,12 @@ namespace {
   {
     Drive *_drive;
     uint32_t _timeout;
-    const char *_data;
+    const char *_side;
 
   public:
     ReverseState(StateMachine *owner_machine);
     void enter(void *data);
+    void event_occurred(Event *event);
     void update(uint32_t now);
   };
 
@@ -66,9 +68,9 @@ IdleState::IdleState(StateMachine *owner_machine)
 
 void IdleState::event_occurred(Event *event)
 {
-  if (event->subsystem == EventSubsystem::WHISKER) {
+  if (event->subsystem == EventSubsystem::WHISKER && event->bool_value) {
     ((Behaviour*)_machine)->activate();
-    go_to("reverse", (void*)(event->str_value));
+    go_to("reverse", (void*)((event->type == EventType::LEFT) ? "right" : "left"));
   }
 }
 
@@ -88,16 +90,27 @@ void ReverseState::enter(void *data)
 {
   State::enter(data);
 
-  _data = (char *)data;
-  _timeout = millis() + REVERSE_TIME;
+  _drive->stop();
+  _side = (char *)data;
   _drive->reverse();
+  _timeout = 0;
+}
+
+
+void ReverseState::event_occurred(Event *event)
+{
+  if (event->subsystem == EventSubsystem::WHISKER && !event->bool_value) {
+    _timeout = millis() + EXTRA_REVERSE_TIME;
+  }
 }
 
 
 void ReverseState::update(uint32_t now)
 {
-  if (now > _timeout) {
-    go_to(strcmp(_data, "left") == 0 ? "right" : "left");
+  // only turn after whisker has been released AND a bit of extra time has passed
+  if (_timeout > 0 && now > _timeout) {
+    _drive->stop();
+    go_to(_side);
   }
 }
 
@@ -159,8 +172,8 @@ void RightState::update(uint32_t now)
 // -----------------------------------------------------------------------------
 // wander behaviour
 
-BehaviourWhisker::BehaviourWhisker(System *system)
-  :Behaviour(system, "whisker")
+BehaviourWhisker::BehaviourWhisker(System *system, bool should_log_transitions)
+  :Behaviour(system, "whisker", should_log_transitions)
 {
   add_state(new IdleState(this));
   add_state(new ReverseState(this));

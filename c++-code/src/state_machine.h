@@ -17,19 +17,20 @@ class StateMachine {
  protected:
   System *_system;
   const char *_initial_state_name;
-
- private:
   const char *_name;
   State *_current_state;
+
+ private:
   State *_states[MAX_STATES];
   int _number_of_states;
+  bool _log_transitions;
 
   State *find_state(const char *state_name);
 
  public:
-  StateMachine(System *system, const char *name);
+  StateMachine(System *system, const char *name, bool should_log_transitions);
   bool add_state(State *state);
-  void reset();
+  bool reset();
   bool go_to_state(const char *state_name, void *data=nullptr);
   virtual void update(uint32_t now);
   virtual void event_occurred(Event *event);

@@ -13,7 +13,7 @@
 class BehaviourFollow: public Behaviour
 {
  public:
-  BehaviourFollow(System *system);
+  BehaviourFollow(System *system, bool should_log_transitions);
 };
 
 

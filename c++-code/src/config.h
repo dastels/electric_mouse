@@ -6,6 +6,9 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
-#define __MOUSE_VERSION__ (0.1)
+#define __VERSION_MAJOR__ (0)
+#define __VERSION_MINOR__ (1)
+
+//#define SLOWDOWN (500)
 
 #endif

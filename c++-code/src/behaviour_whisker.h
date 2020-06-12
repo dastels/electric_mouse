@@ -15,7 +15,7 @@
 class BehaviourWhisker: public Behaviour
 {
  public:
-  BehaviourWhisker(System *system);
+  BehaviourWhisker(System *system, bool should_log_transitions);
 };
 
 

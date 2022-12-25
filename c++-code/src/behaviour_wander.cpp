@@ -67,7 +67,7 @@ void IdleState::event_occurred(Event *event)
   State::event_occurred(event);
   if (event->subsystem == EventSubsystem::HEARTBEAT) {
     int chance = random(100);
-    if (chance < 10) {
+    if (chance < 25) {
       ((Behaviour*)_machine)->activate();
       if (random(100) < 50) {
         go_to("left");

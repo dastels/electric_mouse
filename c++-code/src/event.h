@@ -19,6 +19,7 @@ public:
   union {
     bool bool_value;
     int int_value;
+    float float_value;
     EventFocus focus_value;
     char *str_value;
   };
@@ -27,6 +28,7 @@ public:
   Event(EventSubsystem subsystem, EventType type);
   Event(EventSubsystem subsystem, EventType type, bool value);
   Event(EventSubsystem subsystem, EventType type, int value);
+  Event(EventSubsystem subsystem, EventType type, float value);
   Event(EventSubsystem subsystem, EventType type, EventFocus value);
   Event(EventSubsystem subsystem, EventType type, char * value);
 

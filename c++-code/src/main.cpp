@@ -9,16 +9,17 @@
 #include "system.h"
 #include "indicator.h"
 #include "drive.h"
+#include "accel.h"
 #include "ir.h"
+#include "range.h"
 #include "event.h"
 #include "behaviours.h"
 #include "behaviour_go_forward.h"
 #include "behaviour_wander.h"
-#include "behaviour_whisker.h"
 #include "behaviour_follow.h"
 
 #include "serial_handler.h"
-#include "sdcard_handler.h"
+//#include "sdcard_handler.h"
 #include "null_handler.h"
 
 #define LOG_TRANSITIONS (true)
@@ -27,21 +28,23 @@
 // Adjust this number for the sensitivity of the 'bump' force
 // this strongly depend on the range! for 16G, try 5-10
 // for 8G, try 10-20. for 4G try 20-40. for 2G try 40-80
-#define BUMPTHRESHHOLD 40
+const int bump_threshhold = 40;
 
+// the IR temperature threshold for determining pixels of interest
+const float temperature_threshold = 40;
 
 Properties *props;
 Logger *logger;
 
-// motor trim
-const int left_trim = 10;
-const int right_trim = 0;
-
 
 // timeing constants
-const unsigned long heartbeat_interval = 1000; // how often a heartbeat event is published
-const unsigned long loop_print_interval = 1000;
-const unsigned long ir_update_interval = 250;
+const unsigned long heartbeat_interval = HEARTBEAT_INTERVAL;
+const unsigned long loop_print_interval = LOOP_PRINT_INTERVAL;
+const unsigned long accel_update_interval = DEFAULT_ACCEL_UPDATE_INTERVAL;
+const unsigned long ir_update_interval = DEFAULT_IR_UPDATE_INTERVAL;
+const unsigned long range_update_interval = DEFAULT_RANGE_UPDATE_INTERVAL;
+const unsigned long fuel_gauge_update_interval = DEFAULT_FUEL_GAUGE_UPDATE_INTERVAL;
+
 
 // time tracking variables
 unsigned long heartbeat_time = 0;
@@ -49,12 +52,11 @@ unsigned long loop_print_time = 0;
 
 // system variables
 System *the_system;
-Debouncer *left_whisker;
-Debouncer *right_whisker;
 Ir *ir;
 Debouncer *hotspot;
 Debouncer *in_your_face;
-Adafruit_LIS3DH *accel;
+Accel *accel;
+Range *range;
 Indicator *indicator;
 
 Behaviours *behaviours;
@@ -62,10 +64,6 @@ Behaviours *behaviours;
 
 // Prefab events to avoid dynamically creating them repeatedly
 Event *heartbeat_event;
-Event *left_whisker_press_event;
-Event *left_whisker_release_event;
-Event *right_whisker_press_event;
-Event *right_whisker_release_event;
 Event *hotspot_event;
 Event *no_hotspot_event;
 Event *in_your_face_event;
@@ -74,6 +72,10 @@ Event *none_focus_event;
 Event *left_focus_event;
 Event *center_focus_event;
 Event *right_focus_event;
+Event *close_event;
+Event *lux_event;
+Event *low_battery_event;
+Event *full_battery_event;
 
 void critical_failure(const char *msg)
 {
@@ -90,19 +92,19 @@ void initialize_properties()
 
 void initialize_events()
 {
-  heartbeat_event             = new Event(EventSubsystem::HEARTBEAT                                         );
-  left_whisker_press_event    = new Event(EventSubsystem::WHISKER, EventType::LEFT,       true              );
-  left_whisker_release_event  = new Event(EventSubsystem::WHISKER, EventType::LEFT,       false             );
-  right_whisker_press_event   = new Event(EventSubsystem::WHISKER, EventType::RIGHT,      true              );
-  right_whisker_release_event = new Event(EventSubsystem::WHISKER, EventType::RIGHT,      false             );
-  hotspot_event               = new Event(EventSubsystem::IR,      EventType::HOTSPOT,    true              );
-  no_hotspot_event            = new Event(EventSubsystem::IR,      EventType::HOTSPOT,    false             );
-  in_your_face_event          = new Event(EventSubsystem::IR,      EventType::INYOURFACE, true              );
-  no_in_your_face_event       = new Event(EventSubsystem::IR,      EventType::INYOURFACE, false             );
-  none_focus_event            = new Event(EventSubsystem::IR,      EventType::FOCUS,      EventFocus::NONE  );
-  left_focus_event            = new Event(EventSubsystem::IR,      EventType::FOCUS,      EventFocus::LEFT  );
-  center_focus_event          = new Event(EventSubsystem::IR,      EventType::FOCUS,      EventFocus::CENTER);
-  right_focus_event           = new Event(EventSubsystem::IR,      EventType::FOCUS,      EventFocus::RIGHT );
+  heartbeat_event       = new Event(EventSubsystem::HEARTBEAT                                           );
+  hotspot_event         = new Event(EventSubsystem::IR,      EventType::HOTSPOT,      true              );
+  no_hotspot_event      = new Event(EventSubsystem::IR,      EventType::HOTSPOT,      false             );
+  in_your_face_event    = new Event(EventSubsystem::IR,      EventType::INYOURFACE,   true              );
+  no_in_your_face_event = new Event(EventSubsystem::IR,      EventType::INYOURFACE,   false             );
+  none_focus_event      = new Event(EventSubsystem::IR,      EventType::FOCUS,        EventFocus::NONE  );
+  left_focus_event      = new Event(EventSubsystem::IR,      EventType::FOCUS,        EventFocus::LEFT  );
+  center_focus_event    = new Event(EventSubsystem::IR,      EventType::FOCUS,        EventFocus::CENTER);
+  right_focus_event     = new Event(EventSubsystem::IR,      EventType::FOCUS,        EventFocus::RIGHT );
+  close_event           = new Event(EventSubsystem::RANGE,   EventType::CLOSE,        (int)0            );
+  lux_event             = new Event(EventSubsystem::LUX,     EventType::VALUE,        (float)0.0        );
+  low_battery_event     = new Event(EventSubsystem::BATTERY, EventType::LOW                             );
+  full_battery_event    = new Event(EventSubsystem::BATTERY, EventType::FULL                            );
 }
 
 
@@ -131,7 +133,7 @@ void log_header() {
 void initialize_logging()
 {
   LoggingHandler *handler;
-  LoggingHandler *sd_handler = new SDCardHandler();
+  // LoggingHandler *sd_handler = new SDCardHandler();
   if (props->log_to_serial()) {
     initialize_serial();
     handler = new SerialHandler();
@@ -139,9 +141,9 @@ void initialize_logging()
     handler = new NullHandler();
   }
   initialize_logger(handler);
-  if (sd_handler->initialized()) {
-    logger->add_handler(sd_handler);
-  }
+  // if (sd_handler->initialized()) {
+  //   logger->add_handler(sd_handler);
+  // }
   log_header();
   props->log();
 }
@@ -152,14 +154,10 @@ void initialize_hardware()
   the_system = new System(props);
   the_system->set_ir_update_interval(ir_update_interval);
   logger->info("System started");
-  the_system->drive()->trim(left_trim, right_trim);
-  logger->info("Drive trim set");
-  left_whisker = the_system->left_whisker();
-  right_whisker = the_system->right_whisker();
-  logger->info("Cached whiskers");
   indicator = the_system->indicator();
   logger->info("Cached indicator");
   ir = the_system->ir();
+  ir->threshold(temperature_threshold);
   logger->info("Cached IR");
   hotspot = the_system->hotspot();
   logger->info("Cached IR hotspot");
@@ -168,15 +166,15 @@ void initialize_hardware()
   the_system->power_on();
   logger->info("Powered on");
   accel = the_system->accel();
-  accel->setRange(LIS3DH_RANGE_4_G); // Set Accelerometer Range (2, 4, 8, or 16 G!)
-
-  /* Set Accelerometer Click Detection
-  * 0 = turn off click detection & interrupt
-  * 1 = single click only interrupt output
-  * 2 = double click only interrupt output
-  * NOTE: Higher numbers are less sensitive
-  */
-  accel->setClick(1, BUMPTHRESHHOLD);
+  // accel->setRange(LIS3DH_RANGE_4_G); // Set Accelerometer Range (2, 4, 8, or 16 G!)
+  range = the_system->range();
+  // /* Set Accelerometer Click Detection
+  // * 0 = turn off click detection & interrupt
+  // * 1 = single click only interrupt output
+  // * 2 = double click only interrupt output
+  // * NOTE: Higher numbers are less sensitive
+  // */
+  // accel->setClick(1, BUMPTHRESHHOLD);
 }
 
 
@@ -199,11 +197,6 @@ void initialize_behaviours()
     critical_failure("Creating BehaviourFollow failed");
   }
   logger->info("BehaviourFollow added");
-
-  if (!behaviours->add(new BehaviourWhisker(the_system, LOG_TRANSITIONS))) {
-    critical_failure("Creating BehaviourWhisker failed");
-  }
-  logger->info("BehaviourWhisker added");
 
   logger->info("Behaviour system initialized, starting");
   behaviours->start();
@@ -249,27 +242,17 @@ void loop()
 
   //----------------------------------------------------------------------------
   // Update things
-
-  bool ir_ready_to_update = the_system->update(now);
+  the_system->update(now);
   behaviours->update(now);
 
   //----------------------------------------------------------------------------
   // Handle event triggers
 
-  indicator->right_whisker(!right_whisker->value());
-  indicator->left_whisker(!left_whisker->value());
 
-  if (accel->getClick()) {
-    // bump event
-  } else if (right_whisker->rose()) {
-    behaviours->event_occurred(right_whisker_release_event);
-  } else if (right_whisker->fell()) {
-    behaviours->event_occurred(right_whisker_press_event);
-  } else if (left_whisker->rose()) {
-    behaviours->event_occurred(left_whisker_release_event);
-  } else if (left_whisker->fell()) {
-    behaviours->event_occurred(left_whisker_press_event);
-  } else if (ir_ready_to_update) {
+  // if (accel->getClick()) {
+  //   // bump event
+  // } else
+  if (the_system->ir_updated()) {
     if (in_your_face->rose()) {
       indicator->in_your_face(true);
       behaviours->event_occurred(in_your_face_event);
@@ -281,6 +264,7 @@ void loop()
     } else if (hotspot->fell()) {
       behaviours->event_occurred(no_hotspot_event);
     }
+
     if (hotspot->value()) {     // if a hotspot is present, generate focus events to track it
       EventFocus focus = ir->focus(5);
       logger->debug_deep("IR Focus: %s", name_of_focus(focus));
@@ -306,7 +290,26 @@ void loop()
     }
   }
 
-  #ifdef SLOWDOWN
+  if (the_system->range_updated()) {
+    Tof *closest_tof = range->closest();
+    if (closest_tof->range() <= CLOSENESS_THRESHOLD) {
+      close_event->int_value = closest_tof->range();
+      behaviours->event_occurred(close_event);
+    }
+    lux_event->float_value = range->average_lux();
+    behaviours->event_occurred(lux_event);
+  }
+
+  if (the_system->fuel_gauge_updated()) {
+    if (the_system->low_battery()->rose()) {
+      behaviours->event_occurred(low_battery_event);
+    }
+    if (the_system->full_battery()->rose()) {
+      behaviours->event_occurred(full_battery_event);
+    }
+  }
+
+#ifdef SLOWDOWN
   delay(SLOWDOWN);
-  #endif
+#endif
 }

@@ -44,7 +44,7 @@ public:
   int percent_above(IrSlice slice);
   void split(int left_width, int right_width);
   EventFocus focus(int percentage_threshold);
-  void update(unsigned long now);
+  void update();
 };
 
 #endif

@@ -41,7 +41,7 @@ void Behaviours::update(uint32_t now)
 {
   if (now >= _update_time) {
     _update_time = now + update_interval;
-    for (uint8_t index = _number_of_behaviours - 1; index >= 0; index--) {
+    for (int8_t index = _number_of_behaviours - 1; index >= 0; index--) {
       _behaviours[index]->update(now);
       if (_behaviours[index]->active()) {
         return;
@@ -54,7 +54,7 @@ void Behaviours::update(uint32_t now)
 void Behaviours::event_occurred(Event *event)
 {
   logger->debug_deep("%s", event->to_string());
-  for (uint8_t index = _number_of_behaviours - 1; index >= 0; index--) {
+  for (int8_t index = _number_of_behaviours - 1; index >= 0; index--) {
     _behaviours[index]->event_occurred(event);
     if (_behaviours[index]->active()) {
       logger->debug_deep("%s processed by %s", event->to_string(), _behaviours[index]->name());

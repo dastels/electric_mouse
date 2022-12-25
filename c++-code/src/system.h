@@ -10,11 +10,11 @@
 #include "debouncer.h"
 #include "digital_output.h"
 #include "digital_input.h"
-#include "ir.h"
 #include "properties.h"
-#include <Adafruit_LIS3DH.h>
-
-const unsigned int IR_UPDATE_INTERVAL = 400;
+#include "accel.h"
+#include "ir.h"
+#include "range.h"
+#include "fuel_gauge.h"
 
 class Drive;
 
@@ -22,34 +22,51 @@ class System
 {
   Indicator *_indicator;
   Drive *_drive;
-  DigitalOutput *_propwing_power;
-  Debouncer *_right_whisker;
-  Debouncer *_left_whisker;
-  Debouncer *_low_voltage;
-  Debouncer *_propwing_switch;
+
+  Accel *_accel;
+  unsigned long _accel_update_time;
+  unsigned long _accel_update_interval;
+  bool _accel_updated;
+
+  Ir *_ir;
   unsigned long _ir_update_time;
   unsigned long _ir_update_interval;
-  Adafruit_LIS3DH *_accel;
-  Ir *_ir;
+  bool _ir_updated;
   Debouncer *_hotspot;
   Debouncer *_in_your_face;
+
+  Range *_range;
+  unsigned long _range_update_time;
+  unsigned long _range_update_interval;
+  bool _range_updated;
+
+  FuelGauge *_fuel_gauge;
+  unsigned long _fuel_gauge_update_time;
+  unsigned long _fuel_gauge_update_interval;
+  bool _fuel_gauge_updated;
+  Debouncer *_low_battery;
+  Debouncer *_full_battery;
 
  public:
   System(Properties *props);
   void set_ir_update_interval(unsigned long interval) { _ir_update_interval = interval; }
-  bool update(uint32_t now);
-  void power_off();
-  void power_on();
+  void update(uint32_t now);
+  bool accel_updated() { return _accel_updated; }
+  bool fuel_gauge_updated() { return _fuel_gauge_updated; }
+  bool ir_updated() { return _ir_updated; }
+  bool range_updated() { return _range_updated; }
   Drive *drive() { return _drive; }
-  Debouncer *right_whisker() { return _right_whisker; }
-  Debouncer *left_whisker() { return _left_whisker; }
-  Debouncer *low_voltage() { return _low_voltage; }
-  Debouncer *propwing_switch() { return _propwing_switch; }
+  Debouncer *low_battery() { return _low_battery; }
+  Debouncer *full_battery() { return _full_battery; }
   Debouncer *hotspot() { return _hotspot; }
   Debouncer *in_your_face() { return _in_your_face; }
   Ir *ir() { return _ir; }
-  Adafruit_LIS3DH *accel() { return _accel; }
+  Accel *accel() { return _accel; }
+  Range *range() { return _range; }
+  FuelGauge *fuel_gauge() { return _fuel_gauge; }
   Indicator *indicator() { return _indicator; }
+  void power_off();
+  void power_on();
 };
 
 #endif

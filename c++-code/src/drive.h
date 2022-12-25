@@ -28,7 +28,6 @@ public:
   Drive(System *sys);
   DriveState state() { return _state; }
   virtual void base_speed(int speed) {}
-  virtual void trim(const int left_trim, const int right_trim) {}
   virtual void enable() {}
   virtual void disable() {}
   virtual void stop();
@@ -72,7 +71,6 @@ class RealDrive: public Drive
 public:
   RealDrive(System *sys);
   void base_speed(int speed);
-  void trim(const int left_trim, const int right_trim);
   void enable();
   void disable();
   void stop();

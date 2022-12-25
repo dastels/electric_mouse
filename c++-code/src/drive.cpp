@@ -157,8 +157,8 @@ void FakeDrive::veer_right()
 RealDrive::RealDrive(System *sys)
   : Drive(sys)
   , _motor_enable(new DigitalOutput(16))
-  , _left(new Motor(13, 12))
-  , _right(new Motor(11, 4))
+  , _left(new Motor(0, 8, 9, 7, 28)) // motor 1, encoder on Grove 7
+  , _right(new Motor(1, 10, 11, 0, 1)) // motor 2, encoder on Grove 1
   , _base_speed(128)
   , _half_speed(64)
   , _indicator(sys->indicator())
@@ -171,14 +171,6 @@ void RealDrive::base_speed(int speed)
   Drive::base_speed(speed);
   _base_speed = speed;
   _half_speed = speed / 2;
-}
-
-
-void RealDrive::trim(const int left_trim, const int right_trim)
-{
-  Drive::trim(left_trim, right_trim);
-  _left->trim(left_trim);
-  _right->trim(right_trim);
 }
 
 

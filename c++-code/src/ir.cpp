@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2020 Dave Astels
 
+#include <math.h>
 #include "logging.h"
 #include "ir.h"
 
@@ -10,10 +11,6 @@ extern Logger *logger;
 int starts[] = {0, 0, 0, 0};
 int widths[] = {32, 0, 0, 0};
 int ends[] = {32, 0, 0, 32};
-float averages[] = {0.0, 0.0, 0.0, 0.0};
-float hottests[] = {0.0, 0.0, 0.0, 0.0};
-float coldests[] = {0.0, 0.0, 0.0, 0.0};
-float percentages_above[] = {0.0, 0.0, 0.0, 0.0};
 
 const char *name_of(IrSlice slice)
 {
@@ -37,16 +34,17 @@ Ir::Ir()
   , _sensor(new Adafruit_MLX90640())
   , _good_frame(false)
   , _update_log_count(0)
+  , _threshold(40)
 {
   split(10, 10);
   logger->info("Adafruit MLX90640 Camera");
-  if (!_sensor->begin(MLX90640_I2CADDR_DEFAULT, &Wire)) {
+  if (!_sensor->begin(MLX90640_I2CADDR_DEFAULT, &Wire1)) {
     logger->critical("MLX90640 not found!");
     while (true);
   }
   logger->info("Found Adafruit MLX90640");
 
-  logger->info("Creating IR: %lx", (uint64_t)_sensor);
+  logger->info("Creating IR");
   _sensor->setMode(MLX90640_CHESS);
   logger->info("Set mode");
   _sensor->setResolution(MLX90640_ADC_18BIT);
@@ -62,26 +60,6 @@ Ir::Ir()
 void Ir::threshold(float th)
 {
   _threshold = th;
-
-  averages[int(IrSlice::ALL)] = -1.0;
-  averages[int(IrSlice::LEFT)] = -1.0;
-  averages[int(IrSlice::CENTER)] = -1.0;
-  averages[int(IrSlice::RIGHT)] = -1.0;
-
-  hottests[int(IrSlice::ALL)] = -1.0;
-  hottests[int(IrSlice::LEFT)] = -1.0;
-  hottests[int(IrSlice::CENTER)] = -1.0;
-  hottests[int(IrSlice::RIGHT)] = -1.0;
-
-  coldests[int(IrSlice::ALL)] = -1.0;
-  coldests[int(IrSlice::LEFT)] = -1.0;
-  coldests[int(IrSlice::CENTER)] = -1.0;
-  coldests[int(IrSlice::RIGHT)] = -1.0;
-
-  percentages_above[int(IrSlice::ALL)] = -1.0;
-  percentages_above[int(IrSlice::LEFT)] = -1.0;
-  percentages_above[int(IrSlice::CENTER)] = -1.0;
-  percentages_above[int(IrSlice::RIGHT)] = -1.0;
 }
 
 
@@ -106,8 +84,6 @@ void Ir::split(int left_width, int right_width)
   widths[int(IrSlice::LEFT)] = left_width;
   widths[int(IrSlice::CENTER)] = 32 - (_right_width + _left_width);
   widths[int(IrSlice::RIGHT)] = right_width;
-
-  threshold(_threshold);
 }
 
 
@@ -119,17 +95,17 @@ int Ir::start_of(IrSlice slice)
 
 int Ir::end_of(IrSlice slice)
 {
-  returns ends[int(slice)];
+  return ends[int(slice)];
 }
 
 
 int Ir::width_of(IrSlice slice)
 {
-  return widths[(slice)];
+  return widths[int(slice)];
 }
 
 
-float Ir::compute_average(IrSlice slice)
+float Ir::average(IrSlice slice)
 {
   int start = start_of(slice);
   int end = end_of(slice);
@@ -143,17 +119,7 @@ float Ir::compute_average(IrSlice slice)
 }
 
 
-float Ir::average(IrSlice slice)
-{
-  int index = int(slice);
-  if (averages[index] == -1) {
-    averages[index] = compute_average[index];
-  }
-  return averages[index];
-}
-
-
-float Ir::compute_hottest(IrSlice slice)
+float Ir::hottest(IrSlice slice)
 {
   int start = start_of(slice);
   int end = end_of(slice);
@@ -169,17 +135,7 @@ float Ir::compute_hottest(IrSlice slice)
 }
 
 
-float Ir::hottest(IrSlice slice)
-{
-  int index = int(slice);
-  if (hottests[index] == -1) {
-    hottests[index] = compute_hottest[index];
-  }
-  return hottests[index];
-}
-
-
-float Ir::compute_coldest(IrSlice slice)
+float Ir::coldest(IrSlice slice)
 {
   int start = start_of(slice);
   int end = end_of(slice);
@@ -195,20 +151,10 @@ float Ir::compute_coldest(IrSlice slice)
 }
 
 
-float Ir::coldest(IrSlice slice)
-{
-  if (coldests[slice] == -1) {
-    coldests[slice] = compute_coldest[slice];
-  }
-  return coldests[slice];
-}
-
-
-int Ir::compute_percent_above(IrSlice slice)
+int Ir::percent_above(IrSlice slice)
 {
   int start = start_of(slice);
   int end = end_of(slice);
-  int total = 24 * width_of(slice);
   int count = 0;
   for (int y = 0; y < 24; y++) {
     for (int x = start; x < end; x++) {
@@ -217,18 +163,9 @@ int Ir::compute_percent_above(IrSlice slice)
       }
     }
   }
-  int above = (count * 100) / total;
+  int above = (count * 100) / pixels_in(slice);
   logger->debug_deep("Percent of %s above threshold is %d", name_of(slice), above);
   return above;
-}
-
-
-int Ir::percent_above(IrSlice slice)
-{
-  if (percentages_above[slice] == -1) {
-    percentages_above[slice] = compute_percent_above[slice];
-  }
-  return percentages_above[slice];
 }
 
 
@@ -283,7 +220,7 @@ void Ir::log_if_time()
 }
 
 
-void Ir::update(unsigned long now)
+void Ir::update()
 {
   // status of -1 means a NACK occurred during the communication
   // -8 means that the data could not be acquired, probably because the I2C frequency is too low.

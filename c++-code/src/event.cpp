@@ -20,6 +20,8 @@ const char *name_of_focus(EventFocus focus)
     return "CENTER";
   case EventFocus::RIGHT:
     return "RIGHT";
+  default:
+    return "";
   }
 }
 
@@ -49,6 +51,14 @@ Event::Event(EventSubsystem ss, EventType t, int value)
   : subsystem(ss)
   , type(t)
   , int_value(value)
+{
+}
+
+
+Event::Event(EventSubsystem ss, EventType t, float value)
+  : subsystem(ss)
+  , type(t)
+  , float_value(value)
 {
 }
 
@@ -124,12 +134,24 @@ const char *Event::value_str()
         return "CENTER";
       case EventFocus::RIGHT:
         return "RIGHT";
+      default:
+        return "";
       }
     default:
       return "";
     }
   case EventSubsystem::RANGE:
     if (type == EventType::CLOSE) {
+      return ""; //int_value
+    } else {
+      return "No Value";
+    }
+  case EventSubsystem::LUX:
+    if (type == EventType::VALUE) {
+      return ""; //float_value
+    } else {
+      return "No Value";
+    }
   default:
     return "";
   }

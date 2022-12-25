@@ -74,8 +74,10 @@ const char *Event::subsystem_str()
   switch(subsystem) {
   case EventSubsystem::HEARTBEAT:
     return "HEARTBEAT";
-  case EventSubsystem::WHISKER:
-    return "WHISKER";
+  case EventSubsystem::RANGE:
+    return "RANGE";
+  case EventSubsystem::LUX:
+    return "LUX";
   case EventSubsystem::IR:
     return "IR";
   }
@@ -89,16 +91,16 @@ const char *Event::type_str()
     return "";
   }
   switch(type) {
+  case EventType::VALUE:
+    return "VALUE";
   case EventType::HOTSPOT:
     return "HOTSPOT";
   case EventType::INYOURFACE:
     return "INYOURFACE";
   case EventType::FOCUS:
     return "FOCUS";
-  case EventType::LEFT:
-    return "LEFT";
-  case EventType::RIGHT:
-    return "RIGHT";
+  case EventType::CLOSE:
+    return "CLOSE";
   }
   return "UNKNOWN_TYPE";
 }
@@ -126,8 +128,8 @@ const char *Event::value_str()
     default:
       return "";
     }
-  case EventSubsystem::WHISKER:
-    return bool_value ? "PRESS" : "RELEASE";
+  case EventSubsystem::RANGE:
+    if (type == EventType::CLOSE) {
   default:
     return "";
   }

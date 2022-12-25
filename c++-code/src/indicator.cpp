@@ -53,18 +53,6 @@ void Indicator::setPixelColour(uint8_t pixel_number, uint8_t red, uint8_t green,
 }
 
 
-void Indicator::left_whisker(bool on_off)
-{
-  setPixelColour(left_whisker_pixel, (on_off ? 0x80 : 0x00), 0x00, 0x00);
-}
-
-
-void Indicator::right_whisker(bool on_off)
-{
-  setPixelColour(right_whisker_pixel, (on_off ? 0x80 : 0x00), 0x00, 0x00);
-}
-
-
 void Indicator::show_speed(int pixel, int speed)
 {
   if (speed >= 0) {

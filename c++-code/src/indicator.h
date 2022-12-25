@@ -21,8 +21,6 @@ class Indicator
   void show();
   void setPixelColour(uint8_t pixel_number, uint8_t red, uint8_t green, uint8_t blue);
 
-  void left_whisker(bool on_off);
-  void right_whisker(bool on_off);
   void left_drive(int speed);
   void right_drive(int speed);
   void in_your_face(bool present);

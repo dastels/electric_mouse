@@ -6,8 +6,8 @@
 #ifndef __EVENT_H__
 #define __EVENT_H__
 
-enum class EventSubsystem {HEARTBEAT, WHISKER, IR};
-enum class EventType {HOTSPOT, INYOURFACE, FOCUS, LEFT, RIGHT};
+enum class EventSubsystem {HEARTBEAT, RANGE, LUX, IR, BATTERY};
+enum class EventType {VALUE, HOTSPOT, INYOURFACE, FOCUS, CLOSE, LOW, FULL};
 enum class EventFocus {NONE, LEFT, CENTER, RIGHT};
 
 const char *name_of_focus(EventFocus focus);
